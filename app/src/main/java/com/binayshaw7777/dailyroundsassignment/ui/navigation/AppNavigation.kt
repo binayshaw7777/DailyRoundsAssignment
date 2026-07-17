@@ -3,9 +3,13 @@ package com.binayshaw7777.dailyroundsassignment.ui.navigation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalView
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
+import com.binayshaw7777.dailyroundsassignment.util.hapticClick
+import com.binayshaw7777.dailyroundsassignment.util.hapticFailure
+import com.binayshaw7777.dailyroundsassignment.util.hapticSuccess
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -21,6 +25,7 @@ import com.binayshaw7777.dailyroundsassignment.ui.quiz.QuizViewModel
 import com.binayshaw7777.dailyroundsassignment.ui.quizstart.QuizStartScreen
 import com.binayshaw7777.dailyroundsassignment.ui.results.ResultsScreen
 import com.binayshaw7777.dailyroundsassignment.ui.results.ResultsUiEvent
+import com.binayshaw7777.dailyroundsassignment.ui.results.ResultsViewModel
 import com.binayshaw7777.dailyroundsassignment.ui.settings.SettingsScreen
 import com.binayshaw7777.dailyroundsassignment.ui.settings.SettingsViewModel
 import com.binayshaw7777.dailyroundsassignment.ui.splash.SplashEffect
@@ -34,23 +39,23 @@ import com.binayshaw7777.dailyroundsassignment.ui.userdetails.UserDetailsViewMod
 @Composable
 fun AppNavigation() {
     val navController = rememberNavController()
-    val settingsViewModel: SettingsViewModel = viewModel()
+    val settingsViewModel: SettingsViewModel = hiltViewModel()
     val settingsState by settingsViewModel.uiState.collectAsStateWithLifecycle()
-    val quizViewModel: QuizViewModel = viewModel()
-    val leaderboardViewModel: LeaderboardViewModel = viewModel()
+    val quizViewModel: QuizViewModel = hiltViewModel()
+    val leaderboardViewModel: LeaderboardViewModel = hiltViewModel()
 
     DailyRoundsAssignmentTheme(darkTheme = settingsState.isDarkTheme) {
-        NavHost(navController = navController, startDestination = "splash") {
-            composable("splash") {
+        NavHost(navController = navController, startDestination = Screen.Splash.route) {
+            composable(Screen.Splash.route) {
                 SplashRoute(navController = navController)
             }
-            composable("onboarding") {
+            composable(Screen.Onboarding.route) {
                 OnboardingRoute(navController = navController)
             }
-            composable("userdetails") {
+            composable(Screen.UserDetails.route) {
                 UserDetailsRoute(navController = navController)
             }
-            composable("home") {
+            composable(Screen.Home.route) {
                 HomeRoute(
                     navController = navController,
                     quizViewModel = quizViewModel,
@@ -58,15 +63,14 @@ fun AppNavigation() {
                     settingsViewModel = settingsViewModel,
                 )
             }
-            composable("quiz") {
+            composable(Screen.Quiz.route) {
                 QuizRoute(
                     viewModel = quizViewModel,
-                    onNavigateToResults = { navController.navigate("results") },
+                    onNavigateToResults = { navController.navigate(Screen.Results.route) },
                 )
             }
-            composable("results") {
+            composable(Screen.Results.route) {
                 ResultsRoute(
-                    viewModel = quizViewModel,
                     navController = navController,
                 )
             }
@@ -76,16 +80,16 @@ fun AppNavigation() {
 
 @Composable
 private fun SplashRoute(navController: NavController) {
-    val splashViewModel: SplashViewModel = viewModel()
+    val splashViewModel: SplashViewModel = hiltViewModel()
 
     LaunchedEffect(splashViewModel) {
         splashViewModel.effects.collect { effect ->
             when (effect) {
-                SplashEffect.NavigateToOnboarding -> navController.navigate("onboarding") {
-                    popUpTo("splash") { inclusive = true }
+                SplashEffect.NavigateToOnboarding -> navController.navigate(Screen.Onboarding.route) {
+                    popUpTo(Screen.Splash.route) { inclusive = true }
                 }
-                SplashEffect.NavigateToHome -> navController.navigate("home") {
-                    popUpTo("splash") { inclusive = true }
+                SplashEffect.NavigateToHome -> navController.navigate(Screen.Home.route) {
+                    popUpTo(Screen.Splash.route) { inclusive = true }
                 }
             }
         }
@@ -96,14 +100,14 @@ private fun SplashRoute(navController: NavController) {
 
 @Composable
 private fun OnboardingRoute(navController: NavController) {
-    val onboardingViewModel: OnboardingViewModel = viewModel()
+    val onboardingViewModel: OnboardingViewModel = hiltViewModel()
     val uiState by onboardingViewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(onboardingViewModel) {
         onboardingViewModel.effects.collect { effect ->
             when (effect) {
-                OnboardingEffect.NavigateToUserDetails -> navController.navigate("userdetails") {
-                    popUpTo("onboarding") { inclusive = true }
+                OnboardingEffect.NavigateToUserDetails -> navController.navigate(Screen.UserDetails.route) {
+                    popUpTo(Screen.Onboarding.route) { inclusive = true }
                 }
             }
         }
@@ -117,14 +121,14 @@ private fun OnboardingRoute(navController: NavController) {
 
 @Composable
 private fun UserDetailsRoute(navController: NavController) {
-    val userDetailsViewModel: UserDetailsViewModel = viewModel()
+    val userDetailsViewModel: UserDetailsViewModel = hiltViewModel()
     val uiState by userDetailsViewModel.uiState.collectAsStateWithLifecycle()
 
     LaunchedEffect(userDetailsViewModel) {
         userDetailsViewModel.effects.collect { effect ->
             when (effect) {
-                UserDetailsEffect.NavigateToHome -> navController.navigate("home") {
-                    popUpTo("userdetails") { inclusive = true }
+                UserDetailsEffect.NavigateToHome -> navController.navigate(Screen.Home.route) {
+                    popUpTo(Screen.UserDetails.route) { inclusive = true }
                 }
             }
         }
@@ -155,7 +159,7 @@ private fun HomeRoute(
                 bestStreak = leaderboardState.results.maxOfOrNull { it.longestStreak } ?: 0,
                 onStartQuiz = {
                     quizViewModel.startQuiz()
-                    navController.navigate("quiz")
+                    navController.navigate(Screen.Quiz.route)
                 },
             )
         },
@@ -174,11 +178,15 @@ private fun QuizRoute(
     onNavigateToResults: () -> Unit,
 ) {
     val uiState by viewModel.quizUiState.collectAsStateWithLifecycle()
+    val view = LocalView.current
 
     LaunchedEffect(viewModel) {
         viewModel.effects.collect { effect ->
             when (effect) {
                 QuizEffect.NavigateToResults -> onNavigateToResults()
+                QuizEffect.HapticSuccess -> view.hapticSuccess()
+                QuizEffect.HapticFailure -> view.hapticFailure()
+                QuizEffect.HapticSkip -> view.hapticClick()
             }
         }
     }
@@ -191,18 +199,18 @@ private fun QuizRoute(
 
 @Composable
 private fun ResultsRoute(
-    viewModel: QuizViewModel,
     navController: NavController,
+    viewModel: ResultsViewModel = hiltViewModel(),
 ) {
-    val uiState by viewModel.resultsUiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     ResultsScreen(
         uiState = uiState,
         onEvent = { event ->
             when (event) {
                 ResultsUiEvent.RestartQuiz -> {
-                    navController.navigate("home") {
-                        popUpTo("home") { inclusive = false }
+                    navController.navigate(Screen.Home.route) {
+                        popUpTo(Screen.Home.route) { inclusive = false }
                     }
                 }
             }

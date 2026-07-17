@@ -10,9 +10,24 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.NavigationBar
-import androidx.compose.material3.NavigationBarItem
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.unit.dp
+import sv.lib.squircleshape.SquircleShape
 import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.TopAppBar
@@ -76,19 +91,66 @@ fun HomeScreen(
             )
         },
         bottomBar = {
-            NavigationBar {
-                tabs.forEach { tabItem ->
-                    NavigationBarItem(
-                        selected = selectedTab == tabItem.tab,
-                        onClick = { selectedTab = tabItem.tab },
-                        icon = {
-                            Icon(
-                                imageVector = tabItem.icon,
-                                contentDescription = tabItem.label,
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .navigationBarsPadding()
+                    .padding(start = 24.dp, end = 24.dp, bottom = 24.dp)
+            ) {
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = SquircleShape(20.dp),
+                    color = MaterialTheme.colorScheme.surface,
+                    tonalElevation = 8.dp,
+                    shadowElevation = 8.dp,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 8.dp, horizontal = 12.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        tabs.forEach { tabItem ->
+                            val selected = selectedTab == tabItem.tab
+                            val iconColor by animateColorAsState(
+                                targetValue = if (selected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary,
+                                label = "iconColor"
                             )
-                        },
-                        label = { Text(tabItem.label) },
-                    )
+                            val scale by animateFloatAsState(
+                                targetValue = if (selected) 1.15f else 1.0f,
+                                label = "iconScale"
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .clip(SquircleShape(12.dp))
+                                    .clickable { selectedTab = tabItem.tab }
+                                    .padding(vertical = 8.dp),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center
+                                ) {
+                                    Icon(
+                                        imageVector = tabItem.icon,
+                                        contentDescription = tabItem.label,
+                                        tint = iconColor,
+                                        modifier = Modifier.scale(scale)
+                                    )
+                                    Spacer(modifier = Modifier.height(4.dp))
+                                    Text(
+                                        text = tabItem.label,
+                                        fontSize = 11.sp,
+                                        fontWeight = if (selected) FontWeight.Bold else FontWeight.Normal,
+                                        color = iconColor
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         },

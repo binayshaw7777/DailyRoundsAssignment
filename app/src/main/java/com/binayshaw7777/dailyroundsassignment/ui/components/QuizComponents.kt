@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import sv.lib.squircleshape.SquircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Text
@@ -31,6 +32,7 @@ import com.binayshaw7777.dailyroundsassignment.ui.theme.TextPrimary
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.foundation.layout.Column
 import com.binayshaw7777.dailyroundsassignment.ui.theme.DailyRoundsAssignmentTheme
+import com.binayshaw7777.dailyroundsassignment.ui.theme.DMSans
 
 @Composable
 fun OptionButton(
@@ -61,7 +63,7 @@ fun OptionButton(
     Button(
         onClick = { if (!isAnswered) onOptionSelected(optionIndex) },
         enabled = !isAnswered,
-        shape = RoundedCornerShape(12.dp),
+        shape = SquircleShape(12.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = backgroundColor,
             disabledContainerColor = backgroundColor,
@@ -81,7 +83,7 @@ fun OptionButton(
         Text(
             text = text,
             fontSize = if (isCode) 14.sp else 16.sp,
-            fontFamily = if (isCode) FontFamily.Monospace else FontFamily.Default,
+            fontFamily = if (isCode) FontFamily.Monospace else DMSans,
             fontWeight = FontWeight.Medium,
             color = if (targetColor == defaultBgColor) defaultTextColor else TextPrimary,
             textAlign = TextAlign.Center,

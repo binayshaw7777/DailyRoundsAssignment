@@ -1,5 +1,7 @@
 package com.binayshaw7777.dailyroundsassignment.data.model
 
+import com.binayshaw7777.dailyroundsassignment.util.calculateAccuracy
+
 data class QuizResult(
     val id: Long = 0,
     val correctCount: Int,
@@ -9,5 +11,5 @@ data class QuizResult(
     val timestamp: Long,
     val isWin: Boolean,
 ) {
-    val accuracy: Int get() = if (totalQuestions > 0) correctCount * 100 / totalQuestions else 0
+    val accuracy: Int get() = calculateAccuracy(correctCount, totalQuestions)
 }

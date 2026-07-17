@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import sv.lib.squircleshape.SquircleShape
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.Button
@@ -223,7 +224,7 @@ private fun QuizContent(
         OutlinedButton(
             onClick = { onEvent(QuizUiEvent.Skip) },
             enabled = !state.isAnswered,
-            shape = RoundedCornerShape(12.dp),
+            shape = SquircleShape(12.dp),
             colors = ButtonDefaults.outlinedButtonColors(
                 containerColor = Color.Transparent,
                 contentColor = MaterialTheme.colorScheme.secondary,

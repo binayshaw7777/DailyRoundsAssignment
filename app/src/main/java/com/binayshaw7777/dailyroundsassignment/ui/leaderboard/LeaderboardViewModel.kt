@@ -1,22 +1,21 @@
 package com.binayshaw7777.dailyroundsassignment.ui.leaderboard
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.binayshaw7777.dailyroundsassignment.data.local.db.QuizDatabase
-import com.binayshaw7777.dailyroundsassignment.data.repository.QuizResultRepositoryImpl
 import com.binayshaw7777.dailyroundsassignment.domain.usecase.ClearQuizHistoryUseCase
 import com.binayshaw7777.dailyroundsassignment.domain.usecase.GetQuizHistoryUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class LeaderboardViewModel(application: Application) : AndroidViewModel(application) {
-    private val dao = QuizDatabase.getInstance(application).quizResultDao()
-    private val repo = QuizResultRepositoryImpl(dao)
-    private val getHistory = GetQuizHistoryUseCase(repo)
-    private val clearHistory = ClearQuizHistoryUseCase(repo)
+@HiltViewModel
+class LeaderboardViewModel @Inject constructor(
+    private val getHistory: GetQuizHistoryUseCase,
+    private val clearHistory: ClearQuizHistoryUseCase,
+) : ViewModel() {
 
     val uiState = getHistory().map { results ->
         LeaderboardUiState(results = results, isLoading = false)

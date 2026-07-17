@@ -6,8 +6,9 @@ import com.binayshaw7777.dailyroundsassignment.data.local.db.QuizResultEntity
 import com.binayshaw7777.dailyroundsassignment.data.model.QuizResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import javax.inject.Inject
 
-class QuizResultRepositoryImpl(private val dao: QuizResultDao) : QuizResultRepository {
+class QuizResultRepositoryImpl @Inject constructor(private val dao: QuizResultDao) : QuizResultRepository {
 
     override fun getAll(): Flow<List<QuizResult>> = dao.getAllResults().map { entities ->
         entities.map { it.toDomain() }

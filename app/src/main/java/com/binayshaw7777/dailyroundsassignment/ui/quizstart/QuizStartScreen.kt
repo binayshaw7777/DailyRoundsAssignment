@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import sv.lib.squircleshape.SquircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.foundation.layout.Box
@@ -120,7 +121,7 @@ fun QuizStartScreen(
                 .fillMaxWidth()
                 .height(60.dp)
                 .scale(buttonScale.value),
-            shape = RoundedCornerShape(18.dp),
+            shape = SquircleShape(18.dp),
             colors = ButtonDefaults.buttonColors(containerColor = OptionCorrect),
         ) {
             Text(

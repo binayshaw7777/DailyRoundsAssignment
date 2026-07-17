@@ -1,18 +1,19 @@
 package com.binayshaw7777.dailyroundsassignment.ui.userdetails
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.binayshaw7777.dailyroundsassignment.data.local.preferences.AppPreferences
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class UserDetailsViewModel(application: Application) : AndroidViewModel(application) {
-    private val prefs = AppPreferences(application)
+@HiltViewModel
+class UserDetailsViewModel @Inject constructor(private val prefs: AppPreferences) : ViewModel() {
     private val _uiState = MutableStateFlow(UserDetailsUiState())
     val uiState = _uiState.asStateFlow()
 

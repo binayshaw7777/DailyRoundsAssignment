@@ -1,21 +1,14 @@
 package com.binayshaw7777.dailyroundsassignment.ui.quiz
 
-import android.app.Application
-import androidx.lifecycle.AndroidViewModel
+import android.util.Log
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.binayshaw7777.dailyroundsassignment.data.local.db.QuizDatabase
-import com.binayshaw7777.dailyroundsassignment.data.local.preferences.AppPreferences
 import com.binayshaw7777.dailyroundsassignment.data.model.Question
 import com.binayshaw7777.dailyroundsassignment.data.model.QuizResult
-import com.binayshaw7777.dailyroundsassignment.data.remote.QuizApiService
-import com.binayshaw7777.dailyroundsassignment.data.repository.LocalQuizRepositoryImpl
-import com.binayshaw7777.dailyroundsassignment.data.repository.QuizResultRepositoryImpl
-import com.binayshaw7777.dailyroundsassignment.data.repository.RemoteQuizRepositoryImpl
 import com.binayshaw7777.dailyroundsassignment.domain.usecase.LoadQuestionsUseCase
 import com.binayshaw7777.dailyroundsassignment.domain.usecase.SaveQuizResultUseCase
-import com.binayshaw7777.dailyroundsassignment.ui.results.ResultsUiEvent
-import com.binayshaw7777.dailyroundsassignment.ui.results.ResultsUiState
 import com.binayshaw7777.dailyroundsassignment.util.SoundManager
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,22 +19,16 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-sealed interface QuizEffect {
-    data object NavigateToResults : QuizEffect
-}
+private const val TAG = "QuizViewModel"
 
-class QuizViewModel(application: Application) : AndroidViewModel(application) {
+@HiltViewModel
+class QuizViewModel @Inject constructor(
+    private val loadQuestionsUseCase: LoadQuestionsUseCase,
+    private val saveQuizResultUseCase: SaveQuizResultUseCase,
+) : ViewModel() {
 
-    private val prefs = AppPreferences(application)
-    private val localRepo = LocalQuizRepositoryImpl(application)
-    private val remoteRepo = RemoteQuizRepositoryImpl(QuizApiService())
-    private val db = QuizDatabase.getInstance(application)
-    private val resultRepo = QuizResultRepositoryImpl(db.quizResultDao())
-    private val loadQuestionsUseCase = LoadQuestionsUseCase(localRepo, remoteRepo, prefs)
-    private val saveQuizResultUseCase = SaveQuizResultUseCase(resultRepo)
-
-    // Internal session state — not exposed directly
     private data class SessionState(
         val questions: List<Question> = emptyList(),
         val currentIndex: Int = 0,
@@ -57,7 +44,6 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
 
     private val _session = MutableStateFlow(SessionState())
 
-    // Quiz screen state
     val quizUiState: StateFlow<QuizUiState> = _session.map { s ->
         when {
             s.isLoading -> QuizUiState.Loading
@@ -77,20 +63,11 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
         }
     }.stateIn(viewModelScope, SharingStarted.Eagerly, QuizUiState.Loading)
 
-    // Results screen state
-    val resultsUiState: StateFlow<ResultsUiState> = _session.map { s ->
-        ResultsUiState(
-            correctCount = s.correctCount,
-            totalQuestions = s.questions.size,
-            longestStreak = s.longestStreak,
-            skippedCount = s.skippedCount,
-        )
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, ResultsUiState())
-
     private val _effects = Channel<QuizEffect>(Channel.BUFFERED)
     val effects = _effects.receiveAsFlow()
 
     init {
+        Log.d(TAG, "QuizViewModel initialized")
         loadQuestions()
     }
 
@@ -101,19 +78,16 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
         }
     }
 
-    fun onResultsEvent(event: ResultsUiEvent) {
-        when (event) {
-            ResultsUiEvent.RestartQuiz -> restartQuiz()
-        }
-    }
-
     private fun loadQuestions() {
+        Log.d(TAG, "loadQuestions() initiated from ViewModel")
         viewModelScope.launch {
             loadQuestionsUseCase().fold(
                 onSuccess = { questions ->
+                    Log.d(TAG, "Questions loaded successfully: ${questions.size} questions")
                     _session.update { it.copy(questions = questions, isLoading = false) }
                 },
                 onFailure = { error ->
+                    Log.e(TAG, "Failed to load questions: ${error.message}", error)
                     _session.update {
                         it.copy(isLoading = false, error = error.message ?: "Failed to load questions")
                     }
@@ -128,7 +102,15 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
         val question = session.questions.getOrNull(session.currentIndex) ?: return
         val isCorrect = index == question.correctOptionIndex
 
-        if (isCorrect) SoundManager.playSuccess() else SoundManager.playFailure()
+        viewModelScope.launch {
+            if (isCorrect) {
+                SoundManager.playSuccess()
+                _effects.send(QuizEffect.HapticSuccess)
+            } else {
+                SoundManager.playFailure()
+                _effects.send(QuizEffect.HapticFailure)
+            }
+        }
 
         val newStreak = if (isCorrect) session.currentStreak + 1 else 0
         _session.update {
@@ -149,7 +131,10 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
     private fun skipQuestion() {
         if (_session.value.isAnswered) return
         _session.update { it.copy(skippedCount = it.skippedCount + 1, isAnswered = true) }
-        viewModelScope.launch { advanceQuestion() }
+        viewModelScope.launch {
+            _effects.send(QuizEffect.HapticSkip)
+            advanceQuestion()
+        }
     }
 
     private suspend fun advanceQuestion() {
@@ -173,16 +158,15 @@ class QuizViewModel(application: Application) : AndroidViewModel(application) {
     }
 
     fun startQuiz() {
+        Log.d(TAG, "startQuiz() called")
         val questions = _session.value.questions
         if (questions.isEmpty() || _session.value.error != null) {
+            Log.d(TAG, "No cached questions or previous error - reloading from source")
             _session.update { SessionState() }
             loadQuestions()
         } else {
+            Log.d(TAG, "Using cached ${questions.size} questions")
             _session.update { SessionState(questions = questions, isLoading = false) }
         }
-    }
-
-    private fun restartQuiz() {
-        startQuiz()
     }
 }

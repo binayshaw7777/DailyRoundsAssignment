@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import sv.lib.squircleshape.SquircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
@@ -112,7 +113,7 @@ fun UserDetailsScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(56.dp),
-            shape = RoundedCornerShape(16.dp),
+            shape = SquircleShape(16.dp),
             colors = ButtonDefaults.buttonColors(
                 containerColor = OptionCorrect,
                 disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,

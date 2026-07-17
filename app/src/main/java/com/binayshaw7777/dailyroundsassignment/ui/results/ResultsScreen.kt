@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import sv.lib.squircleshape.SquircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.material3.Button
@@ -148,7 +149,7 @@ fun ResultsScreen(
 
             Button(
                 onClick = { onEvent(ResultsUiEvent.RestartQuiz) },
-                shape = RoundedCornerShape(50),
+                shape = SquircleShape(percent = 50),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     contentColor = MaterialTheme.colorScheme.onPrimary,
@@ -176,14 +177,6 @@ fun ResultsScreen(
                 0xFF96CEB4.toInt(), 0xFFFF9F43.toInt(), 0xFFA29BFE.toInt(),
             )
             listOf(
-                Party(
-                    colors = colors,
-                    shapes = listOf(Shape.Circle, Shape.Square),
-                    size = listOf(Size.SMALL, Size.MEDIUM),
-                    position = Position.Relative(0.5, 0.0),
-                    spread = 60,
-                    emitter = Emitter(duration = 3, TimeUnit.SECONDS).perSecond(80),
-                ),
                 Party(
                     colors = colors,
                     shapes = listOf(Shape.Circle, Shape.Square),
