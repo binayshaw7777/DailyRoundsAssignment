@@ -201,18 +201,53 @@ app/src/main/java/com/binayshaw7777/dailyroundsassignment/
 
 ---
 
-## Quiz Flow
+## App UI Flow
 
-```
-Splash (1.5 s) → Onboarding (first launch) → Home
-                                                ↓
-                                          Quiz Start → Question 1–10 → Results
-                                              ↑              ↑              |
-                                              └──── Restart ─┘              |
-                                              └─────────────────────────────┘
+```mermaid
+flowchart TD
+    START([App Launch]) --> SPLASH[Splash Screen\n2 s animated fade-in]
+
+    SPLASH -->|onboarding NOT done| ONBOARD[Onboarding Screen\n3-page pager]
+    SPLASH -->|onboarding done| HOME
+
+    ONBOARD -->|Get Started tapped| USERDETAILS[User Details Screen\nEnter name]
+    USERDETAILS -->|Name saved| HOME
+
+    HOME[Home Screen\nBottom nav: Quiz · Scores · Settings]
+
+    HOME -->|Quiz tab - default| QUIZSTART[Quiz Start Tab\nShows total games · wins · best streak]
+    HOME -->|Scores tab| LEADERBOARD[Leaderboard Tab\nPast results sorted by date]
+    HOME -->|Settings tab| SETTINGS[Settings Tab\nDark/light theme · shuffle · clear history]
+
+    LEADERBOARD -->|Clear History| LEADERBOARD
+    SETTINGS -->|Toggle theme| SETTINGS
+    SETTINGS -->|Toggle shuffle| SETTINGS
+    SETTINGS -->|Clear history| LEADERBOARD
+
+    QUIZSTART -->|Start Quiz button| QUIZ_LOAD{Questions\nloaded?}
+    QUIZ_LOAD -->|Success| Q[Question Screen\nQ1 of 10]
+    QUIZ_LOAD -->|Failure / empty JSON| ERR[Error State\nNo questions available]
+    ERR -->|Back| HOME
+
+    Q -->|Tap option| ANSWERED[Answer revealed\nCorrect = green · Wrong = red\nHaptic + sound]
+    Q -->|Skip button or swipe left >200 px| SKIP[Skip recorded\nskippedCount +1\nno streak change]
+
+    ANSWERED -->|Correct| STREAK_UP[streak +1\nlongestStreak updated]
+    ANSWERED -->|Wrong| STREAK_RESET[streak reset to 0]
+
+    STREAK_UP --> WAIT[Auto-advance\ndelay 2 000 ms]
+    STREAK_RESET --> WAIT
+    SKIP --> NEXT_CHECK
+
+    WAIT --> NEXT_CHECK{Last question?}
+    NEXT_CHECK -->|No - advance| Q
+    NEXT_CHECK -->|Yes - quiz done| SAVE[Save result to Room DB\ncorrect · total · longestStreak · skipped]
+    SAVE --> RESULTS[Results Screen\nScore · accuracy · streak · skipped\nKonfetti burst]
+
+    RESULTS -->|Restart / Play Again| HOME
 ```
 
-**Navigation routes:** `Splash` → `Onboarding` → `Home` → `QuizStart` → `Quiz` → `Results` → back to `Home`
+**Navigation routes:** `Splash` → `Onboarding` → `UserDetails` → `Home` → `Quiz` → `Results` → back to `Home`
 
 **Streak logic:**
 - Correct answer → streak + 1; update longestStreak
