@@ -4,7 +4,7 @@
 # Usage: ./export-previews.sh
 
 PREVIEW_DIR="previews"
-DEVICE_DIR="/sdcard/Pictures/ComposePreviews"
+DEVICE_DIR="/data/local/tmp/ComposePreviews"
 
 echo "Creating local preview directory..."
 mkdir -p "$PREVIEW_DIR"
