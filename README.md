@@ -199,6 +199,33 @@ app/src/main/java/com/binayshaw7777/dailyroundsassignment/
 - **Hilt DI** — all repositories and database instances injected via `@Inject constructor`; qualifier annotations distinguish local vs remote quiz sources
 - **No business logic in composables** — ViewModels own all quiz logic
 
+### Room Database Schema
+
+Database file: `quiz_database` · Version: `1` · Single table
+
+```mermaid
+erDiagram
+    quiz_results {
+        INTEGER id PK "autoGenerate = true"
+        INTEGER correctCount "questions answered correctly"
+        INTEGER totalQuestions "total questions in session"
+        INTEGER longestStreak "highest consecutive correct run"
+        INTEGER skippedCount "questions skipped"
+        INTEGER timestamp "epoch millis — completion time"
+        INTEGER isWin "1 if correctCount >= 50% of totalQuestions"
+    }
+```
+
+**DAO operations (`QuizResultDao`)**
+
+| Operation | Type | SQL |
+|---|---|---|
+| `insert(entity)` | `suspend` | `INSERT OR REPLACE` |
+| `getAllResults()` | `Flow<List>` | `SELECT * ORDER BY timestamp DESC` |
+| `getMaxStreak()` | `Flow<Int?>` | `SELECT MAX(longestStreak)` |
+| `deleteById(id)` | `suspend` | `DELETE WHERE id = :id` |
+| `clearAll()` | `suspend` | `DELETE FROM quiz_results` |
+
 ---
 
 ## App UI Flow
