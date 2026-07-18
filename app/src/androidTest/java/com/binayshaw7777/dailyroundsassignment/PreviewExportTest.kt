@@ -1,7 +1,6 @@
 package com.binayshaw7777.dailyroundsassignment
 
 import android.graphics.Bitmap
-import android.os.Environment
 import androidx.compose.ui.graphics.asAndroidBitmap
 import androidx.compose.ui.test.captureToImage
 import androidx.compose.ui.test.junit4.ComposeContentTestRule
@@ -38,17 +37,23 @@ class PreviewExportTest {
     val composeTestRule: ComposeContentTestRule = createComposeRule()
 
     private fun saveScreenshot(bitmap: Bitmap, name: String) {
-        val dir = File(
-            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES),
-            "ComposePreviews"
-        )
-        if (!dir.exists()) dir.mkdirs()
+        val instr = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()
+        val cacheDir = File(instr.targetContext.cacheDir, "ComposePreviews").also { it.mkdirs() }
+        val tmpFile = File(cacheDir, "$name.png")
 
-        val file = File(dir, "$name.png")
-        FileOutputStream(file).use { out ->
+        FileOutputStream(tmpFile).use { out ->
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
         }
-        println("Saved preview: ${file.absolutePath}")
+
+        // Make dirs/file traversable+readable by shell user so cp works
+        instr.targetContext.cacheDir.setExecutable(true, false)
+        cacheDir.setExecutable(true, false)
+        cacheDir.setReadable(true, false)
+        tmpFile.setReadable(true, false)
+
+        instr.uiAutomation.executeShellCommand("mkdir -p /data/local/tmp/ComposePreviews").close()
+        instr.uiAutomation.executeShellCommand("cp ${tmpFile.absolutePath} /data/local/tmp/ComposePreviews/$name.png").close()
+        println("Saved: /data/local/tmp/ComposePreviews/$name.png")
     }
 
     private fun captureAndSave(name: String) {

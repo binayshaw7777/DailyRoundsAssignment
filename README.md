@@ -1,6 +1,15 @@
-# DailyRounds MCQ Quiz App
+# <img src="previews/app_logo.jpg" width="48" align="center" style="border-radius: 8px; margin-right: 10px;"/> DailyRounds MCQ Quiz App
 
 A polished Android quiz app built with Jetpack Compose, Hilt, Room, and Ktor for the DailyRounds interview assignment.
+
+<p align="left">
+  <img src="https://img.shields.io/badge/Android-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android"/>
+  <img src="https://img.shields.io/badge/Kotlin-7F52FF?style=for-the-badge&logo=kotlin&logoColor=white" alt="Kotlin"/>
+  <img src="https://img.shields.io/badge/Compose-4285F4?style=for-the-badge&logo=jetpackcompose&logoColor=white" alt="Jetpack Compose"/>
+  <img src="https://img.shields.io/badge/Room-07405E?style=for-the-badge&logo=sqlite&logoColor=white" alt="Room"/>
+  <img src="https://img.shields.io/badge/Hilt-005C9E?style=for-the-badge&logo=dagger&logoColor=white" alt="Hilt"/>
+  <img src="https://img.shields.io/badge/GitHub_Actions-2088FF?style=for-the-badge&logo=github-actions&logoColor=white" alt="GitHub Actions"/>
+</p>
 
 ---
 
