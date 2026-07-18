@@ -44,22 +44,6 @@ jobs:
       - name: Build release APK
         run: ./gradlew assembleRelease
 
-      - name: Sign APK (if keystore provided)
-        if: ${{ secrets.ANDROID_KEYSTORE != '' }}
-        env:
-          ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
-          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
-          STORE_PASSWORD: ${{ secrets.STORE_PASSWORD }}
-        run: |
-          echo "$ANDROID_KEYSTORE" | base64 --decode > /tmp/keystore.jks
-          # Locate apksigner path dynamically
-          APKSIGNER=$(find $ANDROID_HOME/build-tools -name apksigner | sort -V | tail -n 1)
-          for apk in app/build/outputs/apk/release/*.apk; do
-            [ -f "$apk" ] || continue
-            $APKSIGNER sign --ks /tmp/keystore.jks --ks-key-alias "$KEY_ALIAS" --ks-pass pass:"$STORE_PASSWORD" --key-pass pass:"$KEY_PASSWORD" "$apk"
-          done
-
       - name: Rename APK
         run: |
           for apk in app/build/outputs/apk/release/*.apk; do
