@@ -45,7 +45,7 @@ A polished Android quiz app built with Jetpack Compose, Hilt, Room, and Ktor for
 - **Leaderboard** — persistent quiz history stored in Room; view past results sorted by date
 - **Settings** — dark/light theme toggle, shuffle questions, clear history
 - **Onboarding** — first-launch user name entry with animated transitions
-- **Splash screen** — animated fade-in while data loads
+- **Splash screen** — animated 2 s fade-in while data loads
 - **Haptic feedback** — vibration on correct/wrong answer
 - **Sound effects** — subtle audio cues for answer feedback
 
@@ -129,18 +129,13 @@ app/src/main/java/com/binayshaw7777/dailyroundsassignment/
 │       └── RemoteQuizRepositoryImpl.kt   — Ktor remote question fetcher
 ├── di/
 │   ├── DatabaseModule.kt                 — Hilt module: Room + DataStore providers
-│   ├── RepositoryModule.kt               — Hilt module: repository bindings
-│   └── qualifiers.kt                     — @LocalQuiz / @RemoteQuiz qualifiers
+│   └── RepositoryModule.kt               — Hilt module: repository bindings
 ├── domain/
 │   ├── repository/
 │   │   ├── QuizRepository.kt             — Repository interface
 │   │   └── QuizResultRepository.kt       — Result repository interface
 │   └── usecase/
-│       ├── LoadQuestionsUseCase.kt        — Load + optional shuffle
-│       ├── SaveQuizResultUseCase.kt      — Persist a result
-│       ├── GetQuizHistoryUseCase.kt      — Flow<List<QuizResult>>
-│       ├── GetLatestQuizResultUseCase.kt — Most recent result
-│       └── ClearQuizHistoryUseCase.kt    — Wipe leaderboard
+│       └── LoadQuestionsUseCase.kt        — Load + optional shuffle
 ├── ui/
 │   ├── components/
 │   │   ├── AppText.kt                    — Reusable styled Text
@@ -178,7 +173,7 @@ app/src/main/java/com/binayshaw7777/dailyroundsassignment/
 │   │   ├── SettingsUiState.kt
 │   │   └── SettingsViewModel.kt
 │   ├── splash/
-│   │   ├── SplashScreen.kt              — Animated 1.5 s fade-in
+│   │   ├── SplashScreen.kt              — Animated 2 s fade-in
 │   │   ├── SplashUiEvent.kt
 │   │   ├── SplashUiState.kt
 │   │   └── SplashViewModel.kt
@@ -200,7 +195,6 @@ app/src/main/java/com/binayshaw7777/dailyroundsassignment/
 **Patterns used:**
 - **State holder / UI split** — every screen has a ViewModel-wired composable + a pure UI composable that takes plain state and callbacks; the pure composable is fully previewable
 - **StateFlow + `update {}`** — all state mutations use `MutableStateFlow.update { }` for atomic, race-safe updates
-- **Channel(BUFFERED).receiveAsFlow()** — one-shot navigation effects (navigate to results) to avoid event loss
 - **Use cases** — domain logic in single-responsibility use cases called by ViewModels
 - **Hilt DI** — all repositories and database instances injected via `@Inject constructor`; qualifier annotations distinguish local vs remote quiz sources
 - **No business logic in composables** — ViewModels own all quiz logic
@@ -232,7 +226,7 @@ Splash (1.5 s) → Onboarding (first launch) → Home
 
 | Interaction | Animation |
 |---|---|
-| Tap option | `animateColorAsState` 400 ms color transition |
+| Tap option | `animateColorAsState` 350 ms color transition |
 | Question advance | `AnimatedContent` slide-in from right |
 | Streak badge | `AnimatedVisibility` fade in/out |
 | Streak flames | `animateColorAsState` per flame icon |
