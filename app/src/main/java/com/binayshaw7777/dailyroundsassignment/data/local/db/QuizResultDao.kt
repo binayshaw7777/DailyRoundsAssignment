@@ -41,4 +41,21 @@ interface QuizResultDao {
      */
     @Query("DELETE FROM quiz_results")
     suspend fun clearAll()
+
+    /**
+     * Deletes a single quiz result by its unique ID.
+     *
+     * @param id The ID of the [QuizResultEntity] to delete.
+     */
+    @Query("DELETE FROM quiz_results WHERE id = :id")
+    suspend fun deleteById(id: Long)
+
+    /**
+     * Returns the maximum streak achieved across all quiz sessions.
+     *
+     * @return [Flow] emitting the max streak or null if no results exist.
+     */
+    @Query("SELECT MAX(longestStreak) FROM quiz_results")
+    fun getMaxStreak(): Flow<Int?>
 }
+

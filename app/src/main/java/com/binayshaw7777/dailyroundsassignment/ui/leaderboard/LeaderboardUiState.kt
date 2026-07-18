@@ -10,6 +10,7 @@ import com.binayshaw7777.dailyroundsassignment.data.model.QuizResult
  */
 data class LeaderboardUiState(
     val results: List<QuizResult> = emptyList(),
+    val bestStreak: Int = 0,
     val isLoading: Boolean = true,
 ) {
     /** Total number of quiz results where [QuizResult.isWin] is `true`. */

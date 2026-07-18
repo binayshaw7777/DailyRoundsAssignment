@@ -207,7 +207,7 @@ private fun HomeRoute(
             QuizStartScreen(
                 totalGames = leaderboardState.results.size,
                 totalWins = leaderboardState.totalWins,
-                bestStreak = leaderboardState.results.maxOfOrNull { it.longestStreak } ?: 0,
+                bestStreak = leaderboardState.bestStreak,
                 onStartQuiz = onNavigateToQuiz,
                 modifier = Modifier.fillMaxSize(),
             )

@@ -30,4 +30,18 @@ interface QuizResultRepository {
      * Deletes all persisted quiz results.
      */
     suspend fun clearAll()
+
+    /**
+     * Deletes a single quiz result by its unique ID.
+     *
+     * @param id The ID of the [QuizResult] to delete.
+     */
+    suspend fun deleteById(id: Long)
+
+    /**
+     * Returns the maximum streak achieved across all quiz sessions.
+     *
+     * @return [Flow] of Int emitting the max streak (defaults to 0).
+     */
+    fun getMaxStreak(): Flow<Int>
 }

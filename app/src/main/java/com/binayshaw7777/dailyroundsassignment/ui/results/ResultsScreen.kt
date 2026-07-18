@@ -54,12 +54,56 @@ import java.util.concurrent.TimeUnit
  * @param onEvent Callback for user interactions (restart quiz).
  * @param modifier [Modifier] applied to the root Box.
  */
+private data class CelebrationData(
+    val emoji: String,
+    val title: String,
+    val subtext: String,
+    val showConfetti: Boolean,
+)
+
+private fun getCelebrationData(accuracy: Int): CelebrationData {
+    return when {
+        accuracy == 100 -> CelebrationData(
+            emoji = "🏆",
+            title = "Perfect score!",
+            subtext = "Outstanding! You got everything right.",
+            showConfetti = true
+        )
+        accuracy >= 80 -> CelebrationData(
+            emoji = "🎉",
+            title = "Excellent job!",
+            subtext = "Great performance! Keep it up.",
+            showConfetti = true
+        )
+        accuracy >= 50 -> CelebrationData(
+            emoji = "👏",
+            title = "Well done!",
+            subtext = "Good effort, you passed the quiz!",
+            showConfetti = true
+        )
+        accuracy > 0 -> CelebrationData(
+            emoji = "💪",
+            title = "Keep going!",
+            subtext = "Practice makes perfect.",
+            showConfetti = false
+        )
+        else -> CelebrationData(
+            emoji = "❌",
+            title = "Try again!",
+            subtext = "Don't give up, try another round.",
+            showConfetti = false
+        )
+    }
+}
+
 @Composable
 fun ResultsScreen(
     uiState: ResultsUiState,
     onEvent: (ResultsUiEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val celebration = remember(uiState.accuracy) { getCelebrationData(uiState.accuracy) }
+
     Box(modifier = modifier.background(MaterialTheme.colorScheme.background)) {
         Column(
             modifier = Modifier
@@ -77,7 +121,7 @@ fun ResultsScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                ResultsCelebration(accuracy = uiState.accuracy)
+                ResultsCelebration(celebration = celebration)
 
                 Spacer(modifier = Modifier.height(32.dp))
 
@@ -99,7 +143,9 @@ fun ResultsScreen(
             Spacer(modifier = Modifier.height(20.dp))
         }
 
-        KonfettiView(parties = remember { konfettiParties() }, modifier = Modifier.fillMaxSize())
+        if (celebration.showConfetti) {
+            KonfettiView(parties = remember { konfettiParties() }, modifier = Modifier.fillMaxSize())
+        }
     }
 }
 
@@ -135,17 +181,17 @@ private fun ResultsHeader(
 
 @Composable
 private fun ResultsCelebration(
-    accuracy: Int,
+    celebration: CelebrationData,
     modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = if (accuracy >= 60) "🎉" else "💪", fontSize = 56.sp, enableAutoSize = false)
+        Text(text = celebration.emoji, fontSize = 56.sp, enableAutoSize = false)
         Spacer(modifier = Modifier.height(10.dp))
         Text(
-            text = if (accuracy >= 60) "Well done!" else "Keep going!",
+            text = celebration.title,
             fontSize = 26.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onBackground,
@@ -153,9 +199,10 @@ private fun ResultsCelebration(
         )
         Spacer(modifier = Modifier.height(4.dp))
         Text(
-            text = "Here's your summary",
+            text = celebration.subtext,
             fontSize = 14.sp,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
         )
     }
 }

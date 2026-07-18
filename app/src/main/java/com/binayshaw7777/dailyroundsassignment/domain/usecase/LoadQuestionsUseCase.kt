@@ -2,9 +2,8 @@ package com.binayshaw7777.dailyroundsassignment.domain.usecase
 
 import com.binayshaw7777.dailyroundsassignment.data.local.preferences.AppPreferences
 import com.binayshaw7777.dailyroundsassignment.data.model.Question
-import com.binayshaw7777.dailyroundsassignment.di.LocalQuiz
-import com.binayshaw7777.dailyroundsassignment.di.RemoteQuiz
-import com.binayshaw7777.dailyroundsassignment.domain.repository.QuizRepository
+import com.binayshaw7777.dailyroundsassignment.data.repository.LocalQuizRepositoryImpl
+import com.binayshaw7777.dailyroundsassignment.data.repository.RemoteQuizRepositoryImpl
 import kotlinx.coroutines.flow.first
 import timber.log.Timber
 import javax.inject.Inject
@@ -28,13 +27,13 @@ import javax.inject.Inject
  * result.onFailure { error -> /* show error */ }
  * ```
  *
- * @property localRepo Asset-based repository, qualified with [LocalQuiz].
- * @property remoteRepo Network-based repository, qualified with [RemoteQuiz].
+ * @property localRepo Asset-based repository.
+ * @property remoteRepo Network-based repository.
  * @property prefs User preferences used to determine the active data source and shuffle setting.
  */
 class LoadQuestionsUseCase @Inject constructor(
-    @LocalQuiz private val localRepo: QuizRepository,
-    @RemoteQuiz private val remoteRepo: QuizRepository,
+    private val localRepo: LocalQuizRepositoryImpl,
+    private val remoteRepo: RemoteQuizRepositoryImpl,
     private val prefs: AppPreferences,
 ) {
     /**

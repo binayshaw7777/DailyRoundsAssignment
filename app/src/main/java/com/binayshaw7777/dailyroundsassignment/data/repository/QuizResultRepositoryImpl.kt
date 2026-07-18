@@ -49,6 +49,20 @@ class QuizResultRepositoryImpl @Inject constructor(private val dao: QuizResultDa
         Timber.d("DB clearAll() complete")
     }
 
+    /**
+     * Deletes an individual quiz result from the database by ID.
+     */
+    override suspend fun deleteById(id: Long) {
+        Timber.d("DB deleteById() called with id=%d", id)
+        dao.deleteById(id)
+        Timber.d("DB deleteById() complete")
+    }
+
+    /**
+     * Returns the maximum streak achieved across all quiz sessions, defaulting to 0.
+     */
+    override fun getMaxStreak(): Flow<Int> = dao.getMaxStreak().map { it ?: 0 }
+
     /** Maps a [QuizResultEntity] to its domain [QuizResult] equivalent. */
     private fun QuizResultEntity.toDomain() = QuizResult(
         id = id,
