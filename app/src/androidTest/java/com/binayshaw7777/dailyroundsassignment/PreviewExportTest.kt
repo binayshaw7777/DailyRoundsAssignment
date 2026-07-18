@@ -38,22 +38,17 @@ class PreviewExportTest {
 
     private fun saveScreenshot(bitmap: Bitmap, name: String) {
         val instr = androidx.test.platform.app.InstrumentationRegistry.getInstrumentation()
-        val cacheDir = File(instr.targetContext.cacheDir, "ComposePreviews").also { it.mkdirs() }
-        val tmpFile = File(cacheDir, "$name.png")
+        // Shell creates world-writable dir; drain stdout to wait for completion
+        val pfd = instr.uiAutomation.executeShellCommand("mkdir -p /data/local/tmp/ComposePreviews")
+        java.io.FileInputStream(pfd.fileDescriptor).use { it.readBytes() }
+        pfd.close()
 
-        FileOutputStream(tmpFile).use { out ->
+        // /data/local/tmp/ComposePreviews is 777 — app can write directly
+        val file = File("/data/local/tmp/ComposePreviews", "$name.png")
+        FileOutputStream(file).use { out ->
             bitmap.compress(Bitmap.CompressFormat.PNG, 100, out)
         }
-
-        // Make dirs/file traversable+readable by shell user so cp works
-        instr.targetContext.cacheDir.setExecutable(true, false)
-        cacheDir.setExecutable(true, false)
-        cacheDir.setReadable(true, false)
-        tmpFile.setReadable(true, false)
-
-        instr.uiAutomation.executeShellCommand("mkdir -p /data/local/tmp/ComposePreviews").close()
-        instr.uiAutomation.executeShellCommand("cp ${tmpFile.absolutePath} /data/local/tmp/ComposePreviews/$name.png").close()
-        println("Saved: /data/local/tmp/ComposePreviews/$name.png")
+        println("Saved: ${file.absolutePath}")
     }
 
     private fun captureAndSave(name: String) {
