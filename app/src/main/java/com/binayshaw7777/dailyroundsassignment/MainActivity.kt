@@ -4,44 +4,25 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.binayshaw7777.dailyroundsassignment.ui.theme.DailyRoundsAssignmentTheme
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import com.binayshaw7777.dailyroundsassignment.ui.navigation.AppNavigation
+import dagger.hilt.android.AndroidEntryPoint
 
+/**
+ * Single-Activity entry point for the application.
+ *
+ * Annotated with [AndroidEntryPoint] to enable Hilt injection in this Activity.
+ * Enables edge-to-edge rendering and sets the Compose content to the root
+ * navigation graph [AppNavigation].
+ */
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            DailyRoundsAssignmentTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
+            AppNavigation()
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    DailyRoundsAssignmentTheme {
-        Greeting("Android")
     }
 }

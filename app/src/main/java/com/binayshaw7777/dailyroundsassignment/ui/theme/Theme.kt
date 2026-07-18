@@ -1,58 +1,73 @@
 package com.binayshaw7777.dailyroundsassignment.ui.theme
 
-import android.app.Activity
-import android.os.Build
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
-import androidx.compose.material3.dynamicDarkColorScheme
-import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 
 private val DarkColorScheme = darkColorScheme(
-    primary = Purple80,
-    secondary = PurpleGrey80,
-    tertiary = Pink80
+    primary = DarkPrimary,
+    onPrimary = DarkOnPrimary,
+    primaryContainer = DarkMuted,
+    onPrimaryContainer = DarkOnSurface,
+    secondary = DarkMuted,
+    onSecondary = DarkOnSurface,
+    background = DarkBackground,
+    onBackground = DarkOnBackground,
+    surface = DarkSurface,
+    onSurface = DarkOnSurface,
+    surfaceVariant = DarkMuted,
+    onSurfaceVariant = DarkMutedFg,
+    outline = DarkBorder,
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
-
-    /* Other default colors to override
-    background = Color(0xFFFFFBFE),
-    surface = Color(0xFFFFFBFE),
-    onPrimary = Color.White,
-    onSecondary = Color.White,
-    onTertiary = Color.White,
-    onBackground = Color(0xFF1C1B1F),
-    onSurface = Color(0xFF1C1B1F),
-    */
+    primary = LightPrimary,
+    onPrimary = LightOnPrimary,
+    primaryContainer = LightMuted,
+    onPrimaryContainer = LightOnSurface,
+    secondary = LightMuted,
+    onSecondary = LightOnSurface,
+    background = LightBackground,
+    onBackground = LightOnBackground,
+    surface = LightSurface,
+    onSurface = LightOnSurface,
+    surfaceVariant = LightMuted,
+    onSurfaceVariant = LightMutedFg,
+    outline = LightBorder,
 )
 
+/**
+ * App-wide Material 3 theme composable.
+ *
+ * Applies either [DarkColorScheme] or [LightColorScheme] based on the
+ * [darkTheme] parameter and wraps [content] with [MaterialTheme].
+ *
+ * @param darkTheme When `true` (default), uses the dark color palette.
+ * @param content Root composable tree to receive the theme.
+ *
+ * Usage:
+ * ```kotlin
+ * @Composable
+ * fun App() {
+ *     DailyRoundsAssignmentTheme(darkTheme = true) {
+ *         Scaffold { padding ->
+ *             Box(Modifier.padding(padding)) {
+ *                 Text("Hello", color = MaterialTheme.colorScheme.primary)
+ *             }
+ *         }
+ *     }
+ * }
+ * ```
+ */
 @Composable
 fun DailyRoundsAssignmentTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
-    content: @Composable () -> Unit
+    darkTheme: Boolean = true,
+    content: @Composable () -> Unit,
 ) {
-    val colorScheme = when {
-        dynamicColor && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S -> {
-            val context = LocalContext.current
-            if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
-        }
-
-        darkTheme -> DarkColorScheme
-        else -> LightColorScheme
-    }
-
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme,
         typography = Typography,
-        content = content
+        content = content,
     )
 }
