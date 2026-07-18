@@ -1,8 +1,10 @@
 package com.binayshaw7777.dailyroundsassignment.ui.navigation
 
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalView
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -167,6 +169,7 @@ private fun OnboardingRoute(onNavigateToUserDetails: () -> Unit) {
     OnboardingScreen(
         uiState = uiState,
         onEvent = onboardingViewModel::onEvent,
+        modifier = Modifier.fillMaxSize(),
     )
 }
 
@@ -185,6 +188,7 @@ private fun UserDetailsRoute(onNavigateToHome: () -> Unit) {
     UserDetailsScreen(
         uiState = uiState,
         onEvent = userDetailsViewModel::onEvent,
+        modifier = Modifier.fillMaxSize(),
     )
 }
 
@@ -205,6 +209,7 @@ private fun HomeRoute(
                 totalWins = leaderboardState.totalWins,
                 bestStreak = leaderboardState.results.maxOfOrNull { it.longestStreak } ?: 0,
                 onStartQuiz = onNavigateToQuiz,
+                modifier = Modifier.fillMaxSize(),
             )
         },
         leaderboardContent = {
@@ -213,6 +218,7 @@ private fun HomeRoute(
         settingsContent = {
             SettingsRoute(viewModel = settingsViewModel)
         },
+        modifier = Modifier.fillMaxSize(),
     )
 }
 
@@ -263,6 +269,7 @@ private fun ResultsRoute(
                 ResultsUiEvent.RestartQuiz -> onRestartQuiz()
             }
         },
+        modifier = Modifier.fillMaxSize(),
     )
 }
 
@@ -273,6 +280,7 @@ private fun LeaderboardRoute(viewModel: LeaderboardViewModel) {
     LeaderboardScreen(
         uiState = uiState,
         onEvent = viewModel::onEvent,
+        modifier = Modifier.fillMaxSize(),
     )
 }
 
@@ -283,5 +291,6 @@ private fun SettingsRoute(viewModel: SettingsViewModel) {
     SettingsScreen(
         uiState = uiState,
         onEvent = viewModel::onEvent,
+        modifier = Modifier.fillMaxSize(),
     )
 }

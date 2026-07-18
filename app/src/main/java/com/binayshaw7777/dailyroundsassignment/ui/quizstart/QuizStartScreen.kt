@@ -81,7 +81,6 @@ fun QuizStartScreen(
 
     Column(
         modifier = modifier
-            .fillMaxSize()
             .verticalScroll(rememberScrollState())
             .padding(horizontal = 24.dp, vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -91,55 +90,17 @@ fun QuizStartScreen(
             modifier = Modifier.fillMaxWidth().alpha(contentAlpha.value),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(text = "🧠", fontSize = 56.sp, enableAutoSize = false)
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Daily Quiz",
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-            Spacer(modifier = Modifier.height(6.dp))
-            Text(
-                text = "Test your knowledge and build your streak.",
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-                lineHeight = 21.sp,
-            )
+            QuizStartHeader()
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            if (totalGames > 0) {
-                Surface(
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = SquircleShape(14.dp),
-                    color = MaterialTheme.colorScheme.surface,
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 20.dp, horizontal = 16.dp),
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                    ) {
-                        StatItem(label = "Played", value = totalGames.toString())
-                        VerticalDivider()
-                        StatItem(label = "Wins", value = totalWins.toString())
-                        VerticalDivider()
-                        StatItem(label = "Best Streak", value = "$bestStreak 🔥")
-                    }
-                }
-                Spacer(modifier = Modifier.height(32.dp))
-            } else {
-                Text(
-                    text = "No games yet. Start your first quiz!",
-                    fontSize = 13.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                )
-                Spacer(modifier = Modifier.height(32.dp))
-            }
+            QuizStartStats(
+                totalGames = totalGames,
+                totalWins = totalWins,
+                bestStreak = bestStreak,
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
         }
 
         Button(
@@ -160,6 +121,71 @@ fun QuizStartScreen(
                 fontWeight = FontWeight.SemiBold,
             )
         }
+    }
+}
+
+@Composable
+private fun QuizStartHeader(
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(text = "🧠", fontSize = 56.sp, enableAutoSize = false)
+        Spacer(modifier = Modifier.height(16.dp))
+        Text(
+            text = "Daily Quiz",
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground,
+        )
+        Spacer(modifier = Modifier.height(6.dp))
+        Text(
+            text = "Test your knowledge and build your streak.",
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            lineHeight = 21.sp,
+        )
+    }
+}
+
+@Composable
+private fun QuizStartStats(
+    totalGames: Int,
+    totalWins: Int,
+    bestStreak: Int,
+    modifier: Modifier = Modifier,
+) {
+    if (totalGames > 0) {
+        Surface(
+            modifier = modifier.fillMaxWidth(),
+            shape = SquircleShape(14.dp),
+            color = MaterialTheme.colorScheme.surface,
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 20.dp, horizontal = 16.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly,
+            ) {
+                StatItem(label = "Played", value = totalGames.toString())
+                VerticalDivider()
+                StatItem(label = "Wins", value = totalWins.toString())
+                VerticalDivider()
+                StatItem(label = "Best Streak", value = "$bestStreak 🔥")
+            }
+        }
+    } else {
+        Text(
+            text = "No games yet. Start your first quiz!",
+            fontSize = 13.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            modifier = modifier,
+        )
     }
 }
 

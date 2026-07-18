@@ -71,7 +71,7 @@ fun OnboardingScreen(
 
     LaunchedEffect(uiState.currentPage) { pagerState.animateScrollToPage(uiState.currentPage) }
 
-    Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+    Box(modifier = modifier.background(MaterialTheme.colorScheme.background)) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -81,17 +81,10 @@ fun OnboardingScreen(
         ) {
             Spacer(modifier = Modifier.height(16.dp))
 
-            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
-                if (!uiState.isLastPage) {
-                    TextButton(onClick = { onEvent(OnboardingUiEvent.Skip) }) {
-                        Text(
-                            text = "Skip",
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                            fontSize = 14.sp,
-                        )
-                    }
-                }
-            }
+            OnboardingHeader(
+                onSkip = { onEvent(OnboardingUiEvent.Skip) },
+                showSkip = !uiState.isLastPage,
+            )
 
             HorizontalPager(
                 state = pagerState,
@@ -99,59 +92,13 @@ fun OnboardingScreen(
                 userScrollEnabled = false,
             ) { page ->
                 val p = pages[page]
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState()),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                ) {
-                    Text(text = p.emoji, fontSize = 72.sp, enableAutoSize = false)
-                    Spacer(modifier = Modifier.height(28.dp))
-                    Text(
-                        text = p.title,
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground,
-                        textAlign = TextAlign.Center,
-                    )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        text = p.description,
-                        fontSize = 15.sp,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        textAlign = TextAlign.Center,
-                        lineHeight = 24.sp,
-                    )
-                }
+                OnboardingPageContent(page = p)
             }
 
-            // Pill dots
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(6.dp),
-                verticalAlignment = Alignment.CenterVertically,
-            ) {
-                repeat(uiState.totalPages) { index ->
-                    val isSelected = index == uiState.currentPage
-                    val dotWidth by animateDpAsState(
-                        targetValue = if (isSelected) 20.dp else 6.dp,
-                        animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
-                        label = "dot$index",
-                    )
-                    val dotColor by animateColorAsState(
-                        targetValue = if (isSelected) MaterialTheme.colorScheme.primary
-                                      else MaterialTheme.colorScheme.outline,
-                        label = "dotColor$index",
-                    )
-                    Box(
-                        modifier = Modifier
-                            .width(dotWidth)
-                            .height(6.dp)
-                            .clip(CircleShape)
-                            .background(dotColor),
-                    )
-                }
-            }
+            OnboardingIndicators(
+                currentPage = uiState.currentPage,
+                totalPages = uiState.totalPages,
+            )
 
             Spacer(modifier = Modifier.height(28.dp))
 
@@ -172,6 +119,94 @@ fun OnboardingScreen(
             }
 
             Spacer(modifier = Modifier.height(40.dp))
+        }
+    }
+}
+
+@Composable
+private fun OnboardingHeader(
+    onSkip: () -> Unit,
+    showSkip: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.End
+    ) {
+        if (showSkip) {
+            TextButton(onClick = onSkip) {
+                Text(
+                    text = "Skip",
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    fontSize = 14.sp,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun OnboardingPageContent(
+    page: OnboardingPage,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        Text(text = page.emoji, fontSize = 72.sp, enableAutoSize = false)
+        Spacer(modifier = Modifier.height(28.dp))
+        Text(
+            text = page.title,
+            fontSize = 24.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(modifier = Modifier.height(12.dp))
+        Text(
+            text = page.description,
+            fontSize = 15.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            lineHeight = 24.sp,
+        )
+    }
+}
+
+@Composable
+private fun OnboardingIndicators(
+    currentPage: Int,
+    totalPages: Int,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(6.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        repeat(totalPages) { index ->
+            val isSelected = index == currentPage
+            val dotWidth by animateDpAsState(
+                targetValue = if (isSelected) 20.dp else 6.dp,
+                animationSpec = spring(stiffness = Spring.StiffnessMediumLow),
+                label = "dot$index",
+            )
+            val dotColor by animateColorAsState(
+                targetValue = if (isSelected) MaterialTheme.colorScheme.primary
+                              else MaterialTheme.colorScheme.outline,
+                label = "dotColor$index",
+            )
+            Box(
+                modifier = Modifier
+                    .width(dotWidth)
+                    .height(6.dp)
+                    .clip(CircleShape)
+                    .background(dotColor),
+            )
         }
     }
 }

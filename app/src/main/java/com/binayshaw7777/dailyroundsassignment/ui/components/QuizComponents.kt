@@ -182,19 +182,7 @@ fun OptionButton(
             horizontalArrangement = Arrangement.Start,
             modifier = Modifier.fillMaxWidth(),
         ) {
-            Box(
-                modifier = Modifier
-                    .size(28.dp)
-                    .background(lbg, SquircleShape(6.dp)),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = label,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = textColor,
-                )
-            }
+            OptionLabelPill(label = label, backgroundColor = lbg, textColor = textColor)
             Spacer(modifier = Modifier.width(10.dp))
             val isCode = text.contains("_")
             Text(
@@ -206,6 +194,27 @@ fun OptionButton(
                 textAlign = TextAlign.Start,
             )
         }
+    }
+}
+
+@Composable
+private fun OptionLabelPill(
+    label: String,
+    backgroundColor: Color,
+    textColor: Color,
+) {
+    Box(
+        modifier = Modifier
+            .size(28.dp)
+            .background(backgroundColor, SquircleShape(6.dp)),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = label,
+            fontSize = 11.sp,
+            fontWeight = FontWeight.Bold,
+            color = textColor,
+        )
     }
 }
 

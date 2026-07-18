@@ -54,7 +54,7 @@ fun UserDetailsScreen(
 ) {
     val focusManager = LocalFocusManager.current
 
-    Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+    Box(modifier = modifier.background(MaterialTheme.colorScheme.background)) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -65,80 +65,118 @@ fun UserDetailsScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center,
         ) {
-            Text(text = "👋", fontSize = 56.sp)
-            Spacer(modifier = Modifier.height(20.dp))
-
-            Text(
-                text = "What's your name?",
-                fontSize = 26.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onBackground,
-                textAlign = TextAlign.Center,
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            Text(
-                text = "We'll personalize your experience.",
-                fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center,
-            )
+            UserDetailsHeader()
 
             Spacer(modifier = Modifier.height(36.dp))
 
-            OutlinedTextField(
+            NameTextField(
                 value = uiState.name,
                 onValueChange = { onEvent(UserDetailsUiEvent.NameChanged(it)) },
-                modifier = Modifier.fillMaxWidth(),
-                placeholder = {
-                    Text("Enter your name", color = MaterialTheme.colorScheme.onSurfaceVariant, enableAutoSize = false)
+                onDone = {
+                    focusManager.clearFocus()
+                    onEvent(UserDetailsUiEvent.Submit)
                 },
-                singleLine = true,
-                shape = SquircleShape(12.dp),
-                colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = MaterialTheme.colorScheme.primary,
-                    unfocusedBorderColor = MaterialTheme.colorScheme.outline,
-                    focusedTextColor = MaterialTheme.colorScheme.onSurface,
-                    unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
-                    cursorColor = MaterialTheme.colorScheme.primary,
-                    focusedContainerColor = MaterialTheme.colorScheme.surface,
-                    unfocusedContainerColor = MaterialTheme.colorScheme.surface,
-                ),
-                keyboardOptions = KeyboardOptions(
-                    capitalization = KeyboardCapitalization.Words,
-                    imeAction = ImeAction.Done,
-                ),
-                keyboardActions = KeyboardActions(
-                    onDone = {
-                        focusManager.clearFocus()
-                        onEvent(UserDetailsUiEvent.Submit)
-                    },
-                ),
             )
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Button(
+            ContinueButton(
+                enabled = uiState.isNameValid && !uiState.isSubmitting,
+                isSubmitting = uiState.isSubmitting,
                 onClick = {
                     focusManager.clearFocus()
                     onEvent(UserDetailsUiEvent.Submit)
                 },
-                enabled = uiState.isNameValid && !uiState.isSubmitting,
-                modifier = Modifier.fillMaxWidth().height(52.dp),
-                shape = SquircleShape(12.dp),
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    contentColor = MaterialTheme.colorScheme.onPrimary,
-                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
-                    disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-                ),
-            ) {
-                Text(
-                    text = if (uiState.isSubmitting) "Saving..." else "Continue",
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.SemiBold,
-                )
-            }
+            )
         }
+    }
+}
+
+@Composable
+private fun NameTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    onDone: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        modifier = modifier.fillMaxWidth(),
+        placeholder = {
+            Text("Enter your name", color = MaterialTheme.colorScheme.onSurfaceVariant, enableAutoSize = false)
+        },
+        singleLine = true,
+        shape = SquircleShape(12.dp),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedBorderColor = MaterialTheme.colorScheme.primary,
+            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+            focusedTextColor = MaterialTheme.colorScheme.onSurface,
+            unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+            cursorColor = MaterialTheme.colorScheme.primary,
+            focusedContainerColor = MaterialTheme.colorScheme.surface,
+            unfocusedContainerColor = MaterialTheme.colorScheme.surface,
+        ),
+        keyboardOptions = KeyboardOptions(
+            capitalization = KeyboardCapitalization.Words,
+            imeAction = ImeAction.Done,
+        ),
+        keyboardActions = KeyboardActions(onDone = { onDone() }),
+    )
+}
+
+@Composable
+private fun ContinueButton(
+    enabled: Boolean,
+    isSubmitting: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Button(
+        onClick = onClick,
+        enabled = enabled,
+        modifier = modifier.fillMaxWidth().height(52.dp),
+        shape = SquircleShape(12.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant,
+            disabledContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+        ),
+    ) {
+        Text(
+            text = if (isSubmitting) "Saving..." else "Continue",
+            fontSize = 15.sp,
+            fontWeight = FontWeight.SemiBold,
+        )
+    }
+}
+
+@Composable
+private fun UserDetailsHeader(
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(text = "👋", fontSize = 56.sp)
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Text(
+            text = "What's your name?",
+            fontSize = 26.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "We'll personalize your experience.",
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+        )
     }
 }
 

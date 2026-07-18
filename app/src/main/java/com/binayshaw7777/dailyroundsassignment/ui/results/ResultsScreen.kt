@@ -60,27 +60,13 @@ fun ResultsScreen(
     onEvent: (ResultsUiEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    Box(modifier = modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+    Box(modifier = modifier.background(MaterialTheme.colorScheme.background)) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .systemBarsPadding(),
         ) {
-            Box(modifier = Modifier.fillMaxWidth().height(56.dp)) {
-                IconButton(
-                    onClick = { onEvent(ResultsUiEvent.RestartQuiz) },
-                    modifier = Modifier.align(Alignment.CenterStart),
-                ) {
-                    Icon(Icons.Filled.Close, contentDescription = "Close", tint = MaterialTheme.colorScheme.onBackground)
-                }
-                Text(
-                    text = "Results",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.SemiBold,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    modifier = Modifier.align(Alignment.Center),
-                )
-            }
+            ResultsHeader(onRestartQuiz = { onEvent(ResultsUiEvent.RestartQuiz) })
 
             Column(
                 modifier = Modifier
@@ -91,39 +77,11 @@ fun ResultsScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                Text(text = if (uiState.accuracy >= 60) "🎉" else "💪", fontSize = 56.sp, enableAutoSize = false)
-                Spacer(modifier = Modifier.height(10.dp))
-                Text(
-                    text = if (uiState.accuracy >= 60) "Well done!" else "Keep going!",
-                    fontSize = 26.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    textAlign = TextAlign.Center,
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = "Here's your summary",
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                )
+                ResultsCelebration(accuracy = uiState.accuracy)
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                Row(
-                    modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    StatCard(label = "Correct", value = "${uiState.correctCount}/${uiState.totalQuestions}", modifier = Modifier.weight(1f))
-                    StatCard(label = "Streak", value = "${uiState.longestStreak} 🔥", modifier = Modifier.weight(1f))
-                }
-                Spacer(modifier = Modifier.height(12.dp))
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    StatCard(label = "Skipped", value = "${uiState.skippedCount}", modifier = Modifier.weight(1f))
-                    StatCard(label = "Accuracy", value = "${uiState.accuracy}%", modifier = Modifier.weight(1f))
-                }
+                ResultsStatsGrid(uiState = uiState)
             }
 
             Button(
@@ -141,14 +99,88 @@ fun ResultsScreen(
             Spacer(modifier = Modifier.height(20.dp))
         }
 
-        val parties = remember {
-            val colors = listOf(0xFFFCDD45.toInt(), 0xFFFF6B6B.toInt(), 0xFF45B7D1.toInt(), 0xFF96CEB4.toInt())
-            listOf(
-                Party(colors = colors, shapes = listOf(Shape.Circle, Shape.Square), size = listOf(Size.SMALL, Size.MEDIUM), position = Position.Relative(0.0, 0.3), angle = 0, spread = 40, emitter = Emitter(2, TimeUnit.SECONDS).perSecond(40)),
-                Party(colors = colors, shapes = listOf(Shape.Circle, Shape.Square), size = listOf(Size.SMALL, Size.MEDIUM), position = Position.Relative(1.0, 0.3), angle = 180, spread = 40, emitter = Emitter(2, TimeUnit.SECONDS).perSecond(40)),
-            )
+        KonfettiView(parties = remember { konfettiParties() }, modifier = Modifier.fillMaxSize())
+    }
+}
+
+private fun konfettiParties(): List<Party> {
+    val colors = listOf(0xFFFCDD45.toInt(), 0xFFFF6B6B.toInt(), 0xFF45B7D1.toInt(), 0xFF96CEB4.toInt())
+    return listOf(
+        Party(colors = colors, shapes = listOf(Shape.Circle, Shape.Square), size = listOf(Size.SMALL, Size.MEDIUM), position = Position.Relative(0.0, 0.3), angle = 0, spread = 40, emitter = Emitter(2, TimeUnit.SECONDS).perSecond(40)),
+        Party(colors = colors, shapes = listOf(Shape.Circle, Shape.Square), size = listOf(Size.SMALL, Size.MEDIUM), position = Position.Relative(1.0, 0.3), angle = 180, spread = 40, emitter = Emitter(2, TimeUnit.SECONDS).perSecond(40)),
+    )
+}
+
+@Composable
+private fun ResultsHeader(
+    onRestartQuiz: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Box(modifier = modifier.fillMaxWidth().height(56.dp)) {
+        IconButton(
+            onClick = onRestartQuiz,
+            modifier = Modifier.align(Alignment.CenterStart),
+        ) {
+            Icon(Icons.Filled.Close, contentDescription = "Close", tint = MaterialTheme.colorScheme.onBackground)
         }
-        KonfettiView(parties = parties, modifier = Modifier.fillMaxSize())
+        Text(
+            text = "Results",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.SemiBold,
+            color = MaterialTheme.colorScheme.onBackground,
+            modifier = Modifier.align(Alignment.Center),
+        )
+    }
+}
+
+@Composable
+private fun ResultsCelebration(
+    accuracy: Int,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        modifier = modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(text = if (accuracy >= 60) "🎉" else "💪", fontSize = 56.sp, enableAutoSize = false)
+        Spacer(modifier = Modifier.height(10.dp))
+        Text(
+            text = if (accuracy >= 60) "Well done!" else "Keep going!",
+            fontSize = 26.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground,
+            textAlign = TextAlign.Center,
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = "Here's your summary",
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+        )
+    }
+}
+
+@Composable
+private fun ResultsStatsGrid(
+    uiState: ResultsUiState,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth().height(IntrinsicSize.Min),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            StatCard(label = "Correct", value = "${uiState.correctCount}/${uiState.totalQuestions}", modifier = Modifier.weight(1f))
+            StatCard(label = "Streak", value = "${uiState.longestStreak} 🔥", modifier = Modifier.weight(1f))
+        }
+        Spacer(modifier = Modifier.height(12.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            StatCard(label = "Skipped", value = "${uiState.skippedCount}", modifier = Modifier.weight(1f))
+            StatCard(label = "Accuracy", value = "${uiState.accuracy}%", modifier = Modifier.weight(1f))
+        }
     }
 }
 

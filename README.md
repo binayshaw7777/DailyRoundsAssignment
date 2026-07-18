@@ -41,6 +41,37 @@ A polished Android quiz app built with Jetpack Compose, Hilt, Room, and Ktor for
 
 ---
 
+## Screenshots
+
+<table>
+  <tr>
+    <td align="center"><b>Splash</b><br><img src="previews/01_SplashScreen.png" width="180"/></td>
+    <td align="center"><b>Onboarding</b><br><img src="previews/02_OnboardingScreen.png" width="180"/></td>
+    <td align="center"><b>User Details</b><br><img src="previews/03_UserDetailsScreen.png" width="180"/></td>
+    <td align="center"><b>Quiz Start</b><br><img src="previews/04_QuizStartScreen.png" width="180"/></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Quiz Start (First)</b><br><img src="previews/05_QuizStartScreen_FirstTime.png" width="180"/></td>
+    <td align="center"><b>Home</b><br><img src="previews/06_HomeScreen.png" width="180"/></td>
+    <td align="center"><b>Quiz Loading</b><br><img src="previews/07_QuizScreen_Loading.png" width="180"/></td>
+    <td align="center"><b>Quiz</b><br><img src="previews/08_QuizScreen_Content.png" width="180"/></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Results</b><br><img src="previews/09_ResultsScreen.png" width="180"/></td>
+    <td align="center"><b>Leaderboard</b><br><img src="previews/10_LeaderboardScreen.png" width="180"/></td>
+    <td align="center"><b>Settings</b><br><img src="previews/11_SettingsScreen.png" width="180"/></td>
+    <td align="center"><b>Streak Flames</b><br><img src="previews/15_StreakFlames.png" width="180"/></td>
+  </tr>
+  <tr>
+    <td align="center"><b>Option Default</b><br><img src="previews/12_OptionButton_Default.png" width="180"/></td>
+    <td align="center"><b>Option Correct</b><br><img src="previews/13_OptionButton_Correct.png" width="180"/></td>
+    <td align="center"><b>Option Wrong</b><br><img src="previews/14_OptionButton_Wrong.png" width="180"/></td>
+    <td></td>
+  </tr>
+</table>
+
+---
+
 ## Architecture
 
 Clean separation of **data → domain → UI** layers, all wired via Hilt dependency injection.

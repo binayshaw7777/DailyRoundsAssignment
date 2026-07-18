@@ -65,51 +65,23 @@ fun LeaderboardScreen(
     var showClearDialog by remember { mutableStateOf(false) }
 
     if (showClearDialog) {
-        AlertDialog(
-            onDismissRequest = { showClearDialog = false },
-            title = { Text("Clear History") },
-            text = { Text("Clear all history? This cannot be undone.") },
-            confirmButton = {
-                TextButton(onClick = {
-                    onEvent(LeaderboardUiEvent.ClearHistory)
-                    showClearDialog = false
-                }) { Text("Clear", color = OptionWrong) }
-            },
-            dismissButton = {
-                TextButton(onClick = { showClearDialog = false }) { Text("Cancel") }
-            },
+        ClearHistoryDialog(
+            onDismiss = { showClearDialog = false },
+            onConfirm = {
+                onEvent(LeaderboardUiEvent.ClearHistory)
+                showClearDialog = false
+            }
         )
     }
 
-    Column(modifier = modifier.fillMaxSize()) {
-        // Summary row
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 10.dp),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            SummaryCard(label = "Wins", value = uiState.totalWins.toString(), accent = OptionCorrect, modifier = Modifier.weight(1f))
-            SummaryCard(label = "Losses", value = uiState.totalLosses.toString(), accent = OptionWrong, modifier = Modifier.weight(1f))
-            IconButton(onClick = { showClearDialog = true }) {
-                Icon(Icons.Default.Delete, contentDescription = "Clear", tint = MaterialTheme.colorScheme.onSurfaceVariant)
-            }
-        }
+    Column(modifier = modifier) {
+        LeaderboardSummaryHeader(
+            uiState = uiState,
+            onClearClick = { showClearDialog = true }
+        )
 
         if (uiState.results.isEmpty()) {
-            Box(
-                modifier = Modifier.fillMaxSize().padding(24.dp),
-                contentAlignment = Alignment.Center,
-            ) {
-                Text(
-                    text = "No quiz history yet.\nComplete a quiz to see results here.",
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    textAlign = TextAlign.Center,
-                    lineHeight = 22.sp,
-                )
-            }
+            LeaderboardEmptyState(modifier = Modifier.weight(1f))
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
@@ -119,6 +91,65 @@ fun LeaderboardScreen(
                 item { Spacer(modifier = Modifier.height(12.dp)) }
             }
         }
+    }
+}
+
+@Composable
+private fun ClearHistoryDialog(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Clear History") },
+        text = { Text("Clear all history? This cannot be undone.") },
+        confirmButton = {
+            TextButton(onClick = onConfirm) { Text("Clear", color = OptionWrong) }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) { Text("Cancel") }
+        },
+    )
+}
+
+@Composable
+private fun LeaderboardSummaryHeader(
+    uiState: LeaderboardUiState,
+    onClearClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Row(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 10.dp),
+        horizontalArrangement = Arrangement.spacedBy(10.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        SummaryCard(label = "Wins", value = uiState.totalWins.toString(), accent = OptionCorrect, modifier = Modifier.weight(1f))
+        SummaryCard(label = "Losses", value = uiState.totalLosses.toString(), accent = OptionWrong, modifier = Modifier.weight(1f))
+        IconButton(onClick = onClearClick) {
+            Icon(Icons.Default.Delete, contentDescription = "Clear", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+    }
+}
+
+@Composable
+private fun LeaderboardEmptyState(
+    modifier: Modifier = Modifier,
+) {
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(24.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = "No quiz history yet.\nComplete a quiz to see results here.",
+            fontSize = 14.sp,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            textAlign = TextAlign.Center,
+            lineHeight = 22.sp,
+        )
     }
 }
 

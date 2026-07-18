@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.DailyRoundsAssignment" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.DailyRoundsAssignment" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@android:color/white</item>
+        <item name="postSplashScreenTheme">@style/Theme.DailyRoundsAssignment.Base</item>
+    </style>
+
+    <style name="Theme.DailyRoundsAssignment.Base" parent="android:Theme.Material.Light.NoActionBar" />
 </resources>

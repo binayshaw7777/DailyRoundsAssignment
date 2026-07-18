@@ -103,7 +103,6 @@ fun HomeScreen(
     modifier: Modifier = Modifier,
 ) {
     var selectedTab by remember { mutableStateOf(HomeTab.QUIZ) }
-    val selectedIndex = tabs.indexOfFirst { it.tab == selectedTab }
 
     val topBarTitle = when (selectedTab) {
         HomeTab.QUIZ -> if (userName.isNotBlank()) "Hey, $userName!" else "Quiz"
@@ -112,149 +111,175 @@ fun HomeScreen(
     }
 
     Scaffold(
-        modifier = modifier.fillMaxSize(),
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = topBarTitle,
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = MaterialTheme.colorScheme.onBackground,
-                        )
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
-                )
+        modifier = modifier,
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = topBarTitle,
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.SemiBold,
+                        color = MaterialTheme.colorScheme.onBackground,
+                    )
+                },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
+            )
+        },
+        containerColor = MaterialTheme.colorScheme.background,
+        bottomBar = {
+            HomeNavigationBar(
+                selectedTab = selectedTab,
+                onTabSelected = { selectedTab = it },
+            )
+        },
+    ) { innerPadding ->
+        AnimatedContent(
+            targetState = selectedTab,
+            transitionSpec = {
+                val cur = tabs.indexOfFirst { it.tab == initialState }
+                val tgt = tabs.indexOfFirst { it.tab == targetState }
+                val right = tgt > cur
+                (slideInHorizontally(tween(280)) { if (right) it else -it } + fadeIn(tween(280))) togetherWith
+                        (slideOutHorizontally(tween(240)) { if (right) -it else it } + fadeOut(tween(200)))
             },
-            containerColor = MaterialTheme.colorScheme.background,
-            bottomBar = {
+            label = "tabContent",
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(
+                    top = innerPadding.calculateTopPadding(),
+                    bottom = innerPadding.calculateBottomPadding(),
+                ),
+        ) { tab ->
+            when (tab) {
+                HomeTab.QUIZ -> quizContent()
+                HomeTab.LEADERBOARD -> leaderboardContent()
+                HomeTab.SETTINGS -> settingsContent()
+            }
+        }
+    }
+}
+
+@Composable
+private fun HomeNavigationBar(
+    selectedTab: HomeTab,
+    onTabSelected: (HomeTab) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val selectedIndex = tabs.indexOfFirst { it.tab == selectedTab }
+
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .navigationBarsPadding()
+            .padding(horizontal = 20.dp, vertical = 12.dp),
+    ) {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            shape = SquircleShape(18.dp),
+            color = MaterialTheme.colorScheme.surface,
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+        ) {
+            BoxWithConstraints(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(6.dp),
+            ) {
+                val itemWidth = maxWidth / tabs.size
+                val pillInset = 4.dp
+
+                // Sliding pill with horizontal breathing room
+                val pillOffset by animateDpAsState(
+                    targetValue = itemWidth * selectedIndex + pillInset,
+                    animationSpec = spring(
+                        dampingRatio = Spring.DampingRatioMediumBouncy,
+                        stiffness = Spring.StiffnessMedium,
+                    ),
+                    label = "pillOffset",
+                )
                 Box(
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .navigationBarsPadding()
-                        .padding(horizontal = 20.dp, vertical = 12.dp),
+                        .offset(x = pillOffset)
+                        .width(itemWidth - pillInset * 2)
+                        .height(56.dp)
+                        .clip(SquircleShape(14.dp))
+                        .background(MaterialTheme.colorScheme.primary),
+                )
+
+                // Tab items
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceEvenly,
+                    verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Surface(
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = SquircleShape(18.dp),
-                        color = MaterialTheme.colorScheme.surface,
-                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-                    ) {
-                        BoxWithConstraints(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(6.dp),
-                        ) {
-                            val itemWidth = maxWidth / tabs.size
-                            val pillInset = 4.dp
-
-                            // Sliding pill with horizontal breathing room
-                            val pillOffset by animateDpAsState(
-                                targetValue = itemWidth * selectedIndex + pillInset,
-                                animationSpec = spring(
-                                    dampingRatio = Spring.DampingRatioMediumBouncy,
-                                    stiffness = Spring.StiffnessMedium,
-                                ),
-                                label = "pillOffset",
-                            )
-                            Box(
-                                modifier = Modifier
-                                    .offset(x = pillOffset)
-                                    .width(itemWidth - pillInset * 2)
-                                    .height(48.dp)
-                                    .clip(SquircleShape(14.dp))
-                                    .background(MaterialTheme.colorScheme.primary),
-                            )
-
-                            // Tab items
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceEvenly,
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                tabs.forEachIndexed { index, tabItem ->
-                                    val selected = selectedTab == tabItem.tab
-
-                                    val iconColor by animateColorAsState(
-                                        targetValue = if (selected) MaterialTheme.colorScheme.onPrimary
-                                                      else MaterialTheme.colorScheme.onSurfaceVariant,
-                                        animationSpec = tween(180),
-                                        label = "ic_${tabItem.tab}",
-                                    )
-                                    val textColor by animateColorAsState(
-                                        targetValue = if (selected) MaterialTheme.colorScheme.onPrimary
-                                                      else MaterialTheme.colorScheme.onSurfaceVariant,
-                                        animationSpec = tween(180),
-                                        label = "tx_${tabItem.tab}",
-                                    )
-                                    val scale by animateFloatAsState(
-                                        targetValue = if (selected) 1.12f else 1f,
-                                        animationSpec = spring(
-                                            dampingRatio = Spring.DampingRatioMediumBouncy,
-                                            stiffness = Spring.StiffnessMedium,
-                                        ),
-                                        label = "sc_${tabItem.tab}",
-                                    )
-
-                                    Box(
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .height(48.dp)
-                                            .clip(SquircleShape(14.dp))
-                                            .clickable { selectedTab = tabItem.tab },
-                                        contentAlignment = Alignment.Center,
-                                    ) {
-                                        Column(
-                                            horizontalAlignment = Alignment.CenterHorizontally,
-                                            verticalArrangement = Arrangement.spacedBy(2.dp),
-                                        ) {
-                                            Icon(
-                                                imageVector = tabItem.icon,
-                                                contentDescription = tabItem.label,
-                                                tint = iconColor,
-                                                modifier = Modifier
-                                                    .scale(scale)
-                                                    .size(20.dp),
-                                            )
-                                            Text(
-                                                text = tabItem.label,
-                                                fontSize = 10.sp,
-                                                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
-                                                color = textColor,
-                                            )
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                    tabs.forEach { tabItem ->
+                        NavTabItem(
+                            tabItem = tabItem,
+                            selected = selectedTab == tabItem.tab,
+                            onTabSelected = onTabSelected,
+                            modifier = Modifier.weight(1f),
+                        )
                     }
-                }
-            },
-        ) { innerPadding ->
-            AnimatedContent(
-                targetState = selectedTab,
-                transitionSpec = {
-                    val cur = tabs.indexOfFirst { it.tab == initialState }
-                    val tgt = tabs.indexOfFirst { it.tab == targetState }
-                    val right = tgt > cur
-                    (slideInHorizontally(tween(280)) { if (right) it else -it } + fadeIn(tween(280))) togetherWith
-                            (slideOutHorizontally(tween(240)) { if (right) -it else it } + fadeOut(tween(200)))
-                },
-                label = "tabContent",
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(
-                        top = innerPadding.calculateTopPadding(),
-                        bottom = innerPadding.calculateBottomPadding(),
-                    ),
-            ) { tab ->
-                when (tab) {
-                    HomeTab.QUIZ -> quizContent()
-                    HomeTab.LEADERBOARD -> leaderboardContent()
-                    HomeTab.SETTINGS -> settingsContent()
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun NavTabItem(
+    tabItem: TabItem,
+    selected: Boolean,
+    onTabSelected: (HomeTab) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val iconColor by animateColorAsState(
+        targetValue = if (selected) MaterialTheme.colorScheme.onPrimary
+                      else MaterialTheme.colorScheme.onSurfaceVariant,
+        animationSpec = tween(180),
+        label = "ic_${tabItem.tab}",
+    )
+    val textColor by animateColorAsState(
+        targetValue = if (selected) MaterialTheme.colorScheme.onPrimary
+                      else MaterialTheme.colorScheme.onSurfaceVariant,
+        animationSpec = tween(180),
+        label = "tx_${tabItem.tab}",
+    )
+    val scale by animateFloatAsState(
+        targetValue = if (selected) 1.12f else 1f,
+        animationSpec = spring(
+            dampingRatio = Spring.DampingRatioMediumBouncy,
+            stiffness = Spring.StiffnessMedium,
+        ),
+        label = "sc_${tabItem.tab}",
+    )
+
+    Box(
+        modifier = modifier
+            .height(56.dp)
+            .clip(SquircleShape(14.dp))
+            .clickable { onTabSelected(tabItem.tab) },
+        contentAlignment = Alignment.Center,
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(2.dp),
+        ) {
+            Icon(
+                imageVector = tabItem.icon,
+                contentDescription = tabItem.label,
+                tint = iconColor,
+                modifier = Modifier
+                    .scale(scale)
+                    .size(20.dp),
+            )
+            Text(
+                text = tabItem.label,
+                fontSize = 10.sp,
+                fontWeight = if (selected) FontWeight.SemiBold else FontWeight.Normal,
+                color = textColor,
+            )
+        }
+    }
 }
 
 @Preview(showBackground = true)
