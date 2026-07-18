@@ -1,4 +1,5 @@
-# <img src="previews/app_logo.jpg" width="48" align="center" style="border-radius: 8px; margin-right: 10px;"/> DailyRounds MCQ Quiz App
+# <img width="120" height="120" alt="image" src="https://github.com/user-attachments/assets/b2a4f0a3-cd35-4c6e-b9f0-93a6d9f2f8d8" />
+ DailyRounds MCQ Quiz App
 
 A polished Android quiz app built with Jetpack Compose, Hilt, Room, and Ktor for the DailyRounds interview assignment.
 
@@ -50,34 +51,52 @@ A polished Android quiz app built with Jetpack Compose, Hilt, Room, and Ktor for
 
 ---
 
-## Screenshots
+## 📱 Screenshots
 
-<table>
-  <tr>
-    <td align="center"><b>Splash</b><br><img src="previews/01_SplashScreen.png" width="180"/></td>
-    <td align="center"><b>Onboarding</b><br><img src="previews/02_OnboardingScreen.png" width="180"/></td>
-    <td align="center"><b>User Details</b><br><img src="previews/03_UserDetailsScreen.png" width="180"/></td>
-    <td align="center"><b>Quiz Start</b><br><img src="previews/04_QuizStartScreen.png" width="180"/></td>
-  </tr>
-  <tr>
-    <td align="center"><b>Quiz Start (First)</b><br><img src="previews/05_QuizStartScreen_FirstTime.png" width="180"/></td>
-    <td align="center"><b>Home</b><br><img src="previews/06_HomeScreen.png" width="180"/></td>
-    <td align="center"><b>Quiz Loading</b><br><img src="previews/07_QuizScreen_Loading.png" width="180"/></td>
-    <td align="center"><b>Quiz</b><br><img src="previews/08_QuizScreen_Content.png" width="180"/></td>
-  </tr>
-  <tr>
-    <td align="center"><b>Results</b><br><img src="previews/09_ResultsScreen.png" width="180"/></td>
-    <td align="center"><b>Leaderboard</b><br><img src="previews/10_LeaderboardScreen.png" width="180"/></td>
-    <td align="center"><b>Settings</b><br><img src="previews/11_SettingsScreen.png" width="180"/></td>
-    <td align="center"><b>Streak Flames</b><br><img src="previews/15_StreakFlames.png" width="180"/></td>
-  </tr>
-  <tr>
-    <td align="center"><b>Option Default</b><br><img src="previews/12_OptionButton_Default.png" width="180"/></td>
-    <td align="center"><b>Option Correct</b><br><img src="previews/13_OptionButton_Correct.png" width="180"/></td>
-    <td align="center"><b>Option Wrong</b><br><img src="previews/14_OptionButton_Wrong.png" width="180"/></td>
-    <td></td>
-  </tr>
-</table>
+### Splash Screen
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/d6ffec07-ede8-48de-929b-8d797cb10f3d" width="240"/>
+</p>
+
+### Onboarding
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/ebb72dbe-4820-4d44-a8b9-8fff57513c60" width="220"/>
+  <img src="https://github.com/user-attachments/assets/7599446a-ad66-41ad-8107-e2599bca57a5" width="220"/>
+  <img src="https://github.com/user-attachments/assets/2d641c6d-1c1d-47fe-a43d-0c4600610f88" width="220"/>
+</p>
+
+### User Details
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/435663ca-2e72-4802-976c-057a966a957b" width="240"/>
+</p>
+
+### Home
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/f96afc43-341e-427c-91b1-ca5293328e20" width="220"/>
+  <img src="https://github.com/user-attachments/assets/801f44a7-3bd7-4734-bb57-76eec12d81ae" width="220"/>
+  <img src="https://github.com/user-attachments/assets/ba291d1e-51ae-4d9f-abb0-25af595cc449" width="220"/>
+  <img src="https://github.com/user-attachments/assets/8a2347cb-4a81-4a5a-ae96-a7a73a75a5a0" width="220"/>
+  <img src="https://github.com/user-attachments/assets/3162f720-7265-4e73-8b6f-c9f932ca7cc3" width="220"/>
+</p>
+
+### Quiz
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/8c8d3222-921f-488c-b783-dd9197f518d4" width="220"/>
+  <img src="https://github.com/user-attachments/assets/a6f447ce-c14f-4ab8-a615-78df3e7d113b" width="220"/>
+  <img src="https://github.com/user-attachments/assets/25d2f704-9797-4f29-8e4e-f0e055c66095" width="220"/>
+</p>
+
+<p align="center">
+  <img src="https://github.com/user-attachments/assets/4e878254-dc6d-4637-848c-e32a9a11084c" width="220"/>
+  <img src="https://github.com/user-attachments/assets/f897d912-54b5-40d9-b596-525e0071ed16" width="220"/>
+  <img src="https://github.com/user-attachments/assets/3b6c16f1-d92d-464b-bf7a-d680aa7bb61e" width="220"/>
+  <img src="https://github.com/user-attachments/assets/d1598a64-1ffb-4ba2-a28b-09f7bd926b3f" width="220"/>
+</p>
 
 ---
 
