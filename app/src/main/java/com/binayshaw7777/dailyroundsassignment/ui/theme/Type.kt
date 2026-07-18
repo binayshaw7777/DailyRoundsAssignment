@@ -9,6 +9,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.binayshaw7777.dailyroundsassignment.R
 
+/**
+ * Custom [FontFamily] built from the DM Sans font resources.
+ *
+ * Includes Normal, Medium, Bold, SemiBold, and Light weights,
+ * plus italic variants for Normal, Medium, and Bold.
+ *
+ * Usage:
+ * ```kotlin
+ * Text("Hello", style = TextStyle(fontFamily = DMSans, fontWeight = FontWeight.Bold))
+ * ```
+ */
 val DMSans = FontFamily(
     Font(resId = R.font.dm_sans, weight = FontWeight.Normal),
     Font(resId = R.font.dm_sans, weight = FontWeight.Medium),
@@ -20,6 +31,22 @@ val DMSans = FontFamily(
     Font(resId = R.font.dm_sans_italic, weight = FontWeight.Bold, style = FontStyle.Italic)
 )
 
+/**
+ * Material 3 [Typography] scale using [DMSans] throughout.
+ *
+ * Overrides:
+ * - [displaySmall] – 28.sp bold (screen headings)
+ * - [titleLarge] – 18.sp medium (section titles)
+ * - [titleMedium] – 22.sp bold (card headings)
+ * - [bodyLarge] – 16.sp medium (primary body text)
+ * - [bodyMedium] – 14.sp normal (secondary body text)
+ *
+ * Usage:
+ * ```kotlin
+ * Text("Heading", style = MaterialTheme.typography.displaySmall)
+ * Text("Body", style = MaterialTheme.typography.bodyLarge)
+ * ```
+ */
 val Typography = Typography(
     displaySmall = TextStyle(
         fontFamily = DMSans,

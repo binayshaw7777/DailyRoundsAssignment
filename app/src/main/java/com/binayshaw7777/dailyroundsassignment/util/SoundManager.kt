@@ -12,12 +12,45 @@ import kotlin.coroutines.resume
 import kotlin.math.PI
 import kotlin.math.sin
 
+/**
+ * Lightweight synthesizer that generates short UI feedback tones without any audio files.
+ *
+ * Notes are produced as raw PCM sine waves with a simple attack/decay envelope,
+ * played through an [AudioTrack] in static mode. The coroutines-friendly API
+ * suspends until playback completes.
+ *
+ * ### Usage
+ * ```kotlin
+ * // In a ViewModel or coroutine scope
+ * SoundManager.playSuccess()   // ascending two-note chime
+ * SoundManager.playFailure()   // descending two-note buzz
+ * ```
+ *
+ * @see hapticSuccess
+ * @see hapticFailure
+ */
 object SoundManager {
 
+    /**
+     * Plays a descending two-note "failure" tone (700 Hz → 950 Hz).
+     *
+     * Suspends until playback finishes or is cancelled.
+     */
     suspend fun playFailure() = playSynthTone(listOf(700f to 120, 950f to 200))
 
+    /**
+     * Plays an ascending two-note "success" tone (330 Hz → 220 Hz).
+     *
+     * Suspends until playback finishes or is cancelled.
+     */
     suspend fun playSuccess() = playSynthTone(listOf(330f to 200, 220f to 250))
 
+    /**
+     * Internal helper that synthesizes and plays a sequence of notes.
+     *
+     * @param notes Ordered list of `(frequencyHz, durationMs)` pairs to concatenate
+     *   into a single PCM buffer.
+     */
     private suspend fun playSynthTone(notes: List<Pair<Float, Int>>) = withContext(Dispatchers.Default) {
         val sampleRate = 44100
 

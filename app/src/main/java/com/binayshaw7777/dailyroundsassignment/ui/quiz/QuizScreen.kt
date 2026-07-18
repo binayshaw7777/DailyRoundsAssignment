@@ -9,25 +9,31 @@ import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectHorizontalDragGestures
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import sv.lib.squircleshape.SquircleShape
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.material3.Text
+import com.binayshaw7777.dailyroundsassignment.ui.components.Text
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -42,12 +48,29 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.binayshaw7777.dailyroundsassignment.ui.components.OptionButton
-import com.binayshaw7777.dailyroundsassignment.ui.components.StreakFlames
+import com.binayshaw7777.dailyroundsassignment.ui.components.StreakProgressRing
 
 import androidx.compose.ui.tooling.preview.Preview
 import com.binayshaw7777.dailyroundsassignment.ui.theme.DailyRoundsAssignmentTheme
+import com.binayshaw7777.dailyroundsassignment.ui.theme.DarkBackground
 import com.binayshaw7777.dailyroundsassignment.data.model.Question
 
+/**
+ * Main quiz screen that renders questions, options, progress, and streak feedback.
+ *
+ * Handles three UI phases via [QuizUiState]:
+ * - [QuizUiState.Loading] — centered [CircularProgressIndicator].
+ * - [QuizUiState.Error] — centered error message.
+ * - [QuizUiState.Content] — full quiz UI with animated question transitions,
+ *   option buttons, streak ring, progress bar, and skip button.
+ *
+ * Supports **swipe-to-skip**: a left swipe of >200px triggers [QuizUiEvent.Skip]
+ * when the current question hasn't been answered yet.
+ *
+ * @param uiState Current [QuizUiState] driving the UI.
+ * @param onEvent Callback for user interactions (select option, skip, consume haptic, etc.).
+ * @param modifier [Modifier] applied to the root Box.
+ */
 @Composable
 fun QuizScreen(
     uiState: QuizUiState,
@@ -107,48 +130,32 @@ private fun QuizContent(
     onEvent: (QuizUiEvent) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    Box(modifier = modifier) {
     Column(
-        modifier = modifier,
+        modifier = Modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(bottom = 88.dp),
         verticalArrangement = Arrangement.Top,
     ) {
-        // Top bar
-        Box(
+        // Top bar with streak ring
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(56.dp),
-            contentAlignment = Alignment.Center,
+                .padding(horizontal = 24.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
         ) {
             Text(
                 text = "Quiz",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Medium,
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,
             )
-        }
-
-        // Streak flames
-        StreakFlames(
-            currentStreak = state.currentStreak,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 24.dp, vertical = 8.dp),
-        )
-
-        // Streak badge
-        AnimatedVisibility(
-            visible = state.streakActive,
-            enter = fadeIn(),
-            exit = fadeOut(),
-        ) {
-            Text(
-                text = "🔥 ${state.currentStreak} questions streak achieved!!",
-                fontSize = 13.sp,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onBackground,
-                textAlign = TextAlign.Center,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 24.dp, vertical = 4.dp),
+            StreakProgressRing(
+                currentStreak = state.currentStreak,
+                baseSize = 56.dp,
+                sizePerStreak = 2.dp,
             )
         }
 
@@ -161,7 +168,8 @@ private fun QuizContent(
             Text(
                 text = "Question ${state.currentIndex + 1} of ${state.totalQuestions}",
                 fontSize = 14.sp,
-                color = MaterialTheme.colorScheme.secondary,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.onBackground,
                 modifier = Modifier.padding(bottom = 8.dp),
             )
             LinearProgressIndicator(
@@ -171,6 +179,7 @@ private fun QuizContent(
                     .height(6.dp),
                 color = MaterialTheme.colorScheme.primary,
                 trackColor = MaterialTheme.colorScheme.surfaceVariant,
+                drawStopIndicator = {},
             )
         }
 
@@ -190,16 +199,36 @@ private fun QuizContent(
             ) {
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Text(
-                    text = state.currentQuestion.question,
-                    fontSize = 22.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground,
-                    lineHeight = 32.sp,
+                val isDark = MaterialTheme.colorScheme.background == DarkBackground
+                val questionGrad = if (isDark) {
+                    Brush.linearGradient(
+                        colors = listOf(Color(0xFF1E293B), Color(0xFF0F172A))
+                    )
+                } else {
+                    Brush.linearGradient(
+                        colors = listOf(Color(0xFFF8FAFC), Color(0xFFE2E8F0))
+                    )
+                }
+
+                Surface(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(bottom = 24.dp),
-                )
+                        .background(brush = questionGrad, shape = SquircleShape(14.dp)),
+                    shape = SquircleShape(14.dp),
+                    color = Color.Transparent,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline.copy(alpha = 0.5f)),
+                ) {
+                    Text(
+                        text = state.currentQuestion.question,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        lineHeight = 28.sp,
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 24.dp),
+                    )
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
 
                 state.currentQuestion.options.forEachIndexed { optionIndex, optionText ->
                     OptionButton(
@@ -218,36 +247,32 @@ private fun QuizContent(
             }
         }
 
-        Spacer(modifier = Modifier.weight(1f))
-
-        // Skip button
-        OutlinedButton(
-            onClick = { onEvent(QuizUiEvent.Skip) },
-            enabled = !state.isAnswered,
-            shape = SquircleShape(12.dp),
-            colors = ButtonDefaults.outlinedButtonColors(
-                containerColor = Color.Transparent,
-                contentColor = MaterialTheme.colorScheme.secondary,
-                disabledContentColor = MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f),
-            ),
-            border = BorderStroke(
-                width = 1.dp,
-                color = if (!state.isAnswered) MaterialTheme.colorScheme.secondary.copy(alpha = 0.3f) else MaterialTheme.colorScheme.secondary.copy(alpha = 0.1f)
-            ),
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp)
-                .padding(horizontal = 24.dp),
-        ) {
-            Text(
-                text = "Skip Question",
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Medium,
-            )
-        }
-
-        Spacer(modifier = Modifier.height(24.dp))
+        Spacer(modifier = Modifier.height(16.dp))
     }
+
+    Button(
+        onClick = { onEvent(QuizUiEvent.Skip) },
+        enabled = !state.isAnswered,
+        shape = SquircleShape(12.dp),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.onPrimary,
+            disabledContainerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.12f),
+            disabledContentColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+        ),
+        modifier = Modifier
+            .align(Alignment.BottomCenter)
+            .fillMaxWidth()
+            .padding(horizontal = 24.dp, vertical = 16.dp)
+            .height(56.dp),
+    ) {
+        Text(
+            text = "Skip Question",
+            fontSize = 16.sp,
+            fontWeight = FontWeight.Bold,
+        )
+    }
+    } // Box
 }
 
 @Preview(showBackground = true)

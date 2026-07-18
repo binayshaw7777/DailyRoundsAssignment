@@ -2,28 +2,45 @@ package com.binayshaw7777.dailyroundsassignment.ui.leaderboard
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.binayshaw7777.dailyroundsassignment.domain.usecase.ClearQuizHistoryUseCase
-import com.binayshaw7777.dailyroundsassignment.domain.usecase.GetQuizHistoryUseCase
+import com.binayshaw7777.dailyroundsassignment.domain.repository.QuizResultRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+/**
+ * ViewModel for the leaderboard screen.
+ *
+ * Observes the full quiz history via [QuizResultRepository] and exposes it
+ * as [LeaderboardUiState]. Also handles the "clear history" action.
+ *
+ * @property repository Provides the reactive database access to quiz results.
+ */
 @HiltViewModel
 class LeaderboardViewModel @Inject constructor(
-    private val getHistory: GetQuizHistoryUseCase,
-    private val clearHistory: ClearQuizHistoryUseCase,
+    private val repository: QuizResultRepository,
 ) : ViewModel() {
 
-    val uiState = getHistory().map { results ->
-        LeaderboardUiState(results = results, isLoading = false)
-    }.stateIn(viewModelScope, SharingStarted.Eagerly, LeaderboardUiState())
+    /** Observable UI state for the leaderboard screen. */
+    val uiState: StateFlow<LeaderboardUiState> = repository.getAll()
+        .map { results -> LeaderboardUiState(results = results, isLoading = false) }
+        .stateIn(
+            scope = viewModelScope,
+            started = SharingStarted.WhileSubscribed(5000),
+            initialValue = LeaderboardUiState(isLoading = true)
+        )
 
+    /**
+     * Dispatches user events to the appropriate handler.
+     *
+     * @param event The [LeaderboardUiEvent] to process.
+     */
     fun onEvent(event: LeaderboardUiEvent) {
         when (event) {
-            LeaderboardUiEvent.ClearHistory -> viewModelScope.launch { clearHistory() }
+            LeaderboardUiEvent.ClearHistory -> viewModelScope.launch { repository.clearAll() }
         }
     }
 }

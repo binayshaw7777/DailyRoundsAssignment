@@ -32,5 +32,9 @@ Record of all completed actions in the development of the DailyRounds Assignment
 - `ui/screens/ResultsScreen.kt` — state holder + pure ResultsContent + StatCard
 - `ui/components/QuizComponents.kt` — OptionButton (animateColorAsState) + StreakFlames
 
-### Build
 - BUILD SUCCESSFUL after fixing: animateColorAsState wrong package, ResultsScreen weight import conflict.
+
+## [2026-07-17] Fix Preview Export Errors
+- Split `PreviewExportTest` into 15 individual `@Test` methods to prevent `IllegalStateException` from multiple `setContent` calls.
+- Resolved Gradle Configuration Cache serialization issue in `exportPreviews` task by extracting `rootProject.projectDir.absolutePath` to a task configuration-phase variable `rootDirPath` and running all tests under the test class.
+

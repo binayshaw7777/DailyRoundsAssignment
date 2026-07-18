@@ -4,41 +4,69 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.darkColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.graphics.Color
 
 private val DarkColorScheme = darkColorScheme(
-    primary = TextPrimary,
-    onPrimary = Background,
-    secondary = TextSecondary,
-    background = Background,
-    onBackground = TextPrimary,
-    surface = Surface,
-    onSurface = TextPrimary,
-    surfaceVariant = OptionDefault,
-    onSurfaceVariant = TextPrimary,
+    primary = DarkPrimary,
+    onPrimary = DarkOnPrimary,
+    primaryContainer = DarkMuted,
+    onPrimaryContainer = DarkOnSurface,
+    secondary = DarkMuted,
+    onSecondary = DarkOnSurface,
+    background = DarkBackground,
+    onBackground = DarkOnBackground,
+    surface = DarkSurface,
+    onSurface = DarkOnSurface,
+    surfaceVariant = DarkMuted,
+    onSurfaceVariant = DarkMutedFg,
+    outline = DarkBorder,
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Color(0xFF5C6BC0),
-    onPrimary = Color.White,
-    background = Color(0xFFF5F5F5),
-    surface = Color(0xFFFFFFFF),
-    onBackground = Color(0xFF1A1A24),
-    onSurface = Color(0xFF1A1A24),
-    secondary = Color(0xFF757575),
-    surfaceVariant = Color(0xFFE0E0E0),
-    onSurfaceVariant = Color(0xFF1A1A24),
+    primary = LightPrimary,
+    onPrimary = LightOnPrimary,
+    primaryContainer = LightMuted,
+    onPrimaryContainer = LightOnSurface,
+    secondary = LightMuted,
+    onSecondary = LightOnSurface,
+    background = LightBackground,
+    onBackground = LightOnBackground,
+    surface = LightSurface,
+    onSurface = LightOnSurface,
+    surfaceVariant = LightMuted,
+    onSurfaceVariant = LightMutedFg,
+    outline = LightBorder,
 )
 
+/**
+ * App-wide Material 3 theme composable.
+ *
+ * Applies either [DarkColorScheme] or [LightColorScheme] based on the
+ * [darkTheme] parameter and wraps [content] with [MaterialTheme].
+ *
+ * @param darkTheme When `true` (default), uses the dark color palette.
+ * @param content Root composable tree to receive the theme.
+ *
+ * Usage:
+ * ```kotlin
+ * @Composable
+ * fun App() {
+ *     DailyRoundsAssignmentTheme(darkTheme = true) {
+ *         Scaffold { padding ->
+ *             Box(Modifier.padding(padding)) {
+ *                 Text("Hello", color = MaterialTheme.colorScheme.primary)
+ *             }
+ *         }
+ *     }
+ * }
+ * ```
+ */
 @Composable
 fun DailyRoundsAssignmentTheme(
     darkTheme: Boolean = true,
     content: @Composable () -> Unit,
 ) {
-    val colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme
-
     MaterialTheme(
-        colorScheme = colorScheme,
+        colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme,
         typography = Typography,
         content = content,
     )

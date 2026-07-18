@@ -1,5 +1,6 @@
 package com.binayshaw7777.dailyroundsassignment.ui.leaderboard
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -10,21 +11,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import com.binayshaw7777.dailyroundsassignment.ui.components.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,17 +32,30 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.binayshaw7777.dailyroundsassignment.data.model.QuizResult
+import com.binayshaw7777.dailyroundsassignment.ui.theme.DailyRoundsAssignmentTheme
 import com.binayshaw7777.dailyroundsassignment.ui.theme.OptionCorrect
 import com.binayshaw7777.dailyroundsassignment.ui.theme.OptionWrong
+import sv.lib.squircleshape.SquircleShape
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import androidx.compose.ui.tooling.preview.Preview
-import com.binayshaw7777.dailyroundsassignment.ui.theme.DailyRoundsAssignmentTheme
 
+/**
+ * Leaderboard screen displaying quiz history as a scrollable list with summary cards.
+ *
+ * Shows a **Wins** / **Losses** summary row at the top with a delete button that
+ * triggers a confirmation dialog. Each [QuizResult] is rendered as a card with
+ * a colored left border (green for wins, red for losses), date, accuracy, score,
+ * and streak.
+ *
+ * @param uiState Current [LeaderboardUiState] with the full result list.
+ * @param onEvent Callback for user interactions (clear history).
+ * @param modifier [Modifier] applied to the root Column.
+ */
 @Composable
 fun LeaderboardScreen(
     uiState: LeaderboardUiState,
@@ -57,140 +68,74 @@ fun LeaderboardScreen(
         AlertDialog(
             onDismissRequest = { showClearDialog = false },
             title = { Text("Clear History") },
-            text = { Text("Clear all history? This action cannot be undone.") },
+            text = { Text("Clear all history? This cannot be undone.") },
             confirmButton = {
                 TextButton(onClick = {
                     onEvent(LeaderboardUiEvent.ClearHistory)
                     showClearDialog = false
-                }) {
-                    Text("Yes")
-                }
+                }) { Text("Clear", color = OptionWrong) }
             },
             dismissButton = {
-                TextButton(onClick = { showClearDialog = false }) {
-                    Text("No")
-                }
+                TextButton(onClick = { showClearDialog = false }) { Text("Cancel") }
             },
         )
     }
 
-    Column(
-        modifier = modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .systemBarsPadding(),
-    ) {
-        // Top bar
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-        ) {
-            Text(
-                text = "Leaderboard",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Medium,
-                color = MaterialTheme.colorScheme.onBackground,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.align(Alignment.Center),
-            )
-            IconButton(
-                onClick = { showClearDialog = true },
-                modifier = Modifier.align(Alignment.CenterEnd),
-            ) {
-                Icon(
-                    imageVector = Icons.Default.Delete,
-                    contentDescription = "Clear history",
-                    tint = MaterialTheme.colorScheme.secondary,
-                )
-            }
-        }
-
+    Column(modifier = modifier.fillMaxSize()) {
         // Summary row
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                .padding(horizontal = 16.dp, vertical = 10.dp),
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            SummaryCard(
-                label = "Wins",
-                emoji = "🏆",
-                value = uiState.totalWins.toString(),
-                modifier = Modifier.weight(1f),
-            )
-            SummaryCard(
-                label = "Losses",
-                emoji = "❌",
-                value = uiState.totalLosses.toString(),
-                modifier = Modifier.weight(1f),
-            )
+            SummaryCard(label = "Wins", value = uiState.totalWins.toString(), accent = OptionCorrect, modifier = Modifier.weight(1f))
+            SummaryCard(label = "Losses", value = uiState.totalLosses.toString(), accent = OptionWrong, modifier = Modifier.weight(1f))
+            IconButton(onClick = { showClearDialog = true }) {
+                Icon(Icons.Default.Delete, contentDescription = "Clear", tint = MaterialTheme.colorScheme.onSurfaceVariant)
+            }
         }
-
-        Spacer(modifier = Modifier.height(8.dp))
 
         if (uiState.results.isEmpty()) {
             Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(24.dp),
+                modifier = Modifier.fillMaxSize().padding(24.dp),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = "🏆\n\nNo quiz history yet.\nComplete a quiz to see results here.",
-                    fontSize = 15.sp,
-                    color = MaterialTheme.colorScheme.secondary,
+                    text = "No quiz history yet.\nComplete a quiz to see results here.",
+                    fontSize = 14.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
-                    lineHeight = 24.sp,
+                    lineHeight = 22.sp,
                 )
             }
         } else {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(10.dp),
+                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                items(uiState.results) { result ->
-                    ResultItem(result = result)
-                }
-                item { Spacer(modifier = Modifier.height(16.dp)) }
+                items(uiState.results) { result -> ResultItem(result = result) }
+                item { Spacer(modifier = Modifier.height(12.dp)) }
             }
         }
     }
 }
 
 @Composable
-private fun SummaryCard(
-    label: String,
-    emoji: String,
-    value: String,
-    modifier: Modifier = Modifier,
-) {
-    Card(
+private fun SummaryCard(label: String, value: String, accent: androidx.compose.ui.graphics.Color, modifier: Modifier = Modifier) {
+    Surface(
         modifier = modifier,
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        shape = SquircleShape(12.dp),
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp, horizontal = 12.dp),
+            modifier = Modifier.fillMaxWidth().padding(vertical = 14.dp, horizontal = 12.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(text = emoji, fontSize = 24.sp)
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = value,
-                fontSize = 28.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.onSurface,
-            )
-            Text(
-                text = label,
-                fontSize = 13.sp,
-                color = MaterialTheme.colorScheme.secondary,
-            )
+            Text(text = value, fontSize = 26.sp, fontWeight = FontWeight.Bold, color = accent)
+            Text(text = label, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }
@@ -199,64 +144,35 @@ private fun SummaryCard(
 private fun ResultItem(result: QuizResult) {
     val accentColor = if (result.isWin) OptionCorrect else OptionWrong
     val dateFormatter = remember { SimpleDateFormat("MMM dd, HH:mm", Locale.getDefault()) }
-    val formattedDate = remember(result.timestamp) {
-        dateFormatter.format(Date(result.timestamp))
-    }
+    val formattedDate = remember(result.timestamp) { dateFormatter.format(Date(result.timestamp)) }
 
-    Card(
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+    Surface(
+        shape = SquircleShape(12.dp),
+        color = MaterialTheme.colorScheme.surface,
+        border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
         modifier = Modifier.fillMaxWidth(),
     ) {
         Row(modifier = Modifier.fillMaxWidth()) {
-            // Colored left bar
             Box(
                 modifier = Modifier
-                    .width(4.dp)
-                    .height(80.dp)
-                    .background(
-                        color = accentColor,
-                        shape = RoundedCornerShape(topStart = 12.dp, bottomStart = 12.dp),
-                    )
+                    .width(3.dp)
+                    .height(72.dp)
+                    .background(color = accentColor, shape = SquircleShape(0.dp)),
             )
-
             Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 12.dp),
+                modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
-                // Left: date + accuracy
                 Column {
-                    Text(
-                        text = formattedDate,
-                        fontSize = 13.sp,
-                        color = MaterialTheme.colorScheme.secondary,
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "${result.accuracy}% accuracy",
-                        fontSize = 15.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = MaterialTheme.colorScheme.onSurface,
-                    )
+                    Text(text = formattedDate, fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                    Spacer(modifier = Modifier.height(3.dp))
+                    Text(text = "${result.accuracy}% accuracy", fontSize = 14.sp, fontWeight = FontWeight.Medium, color = MaterialTheme.colorScheme.onSurface)
                 }
-
-                // Right: score + streak
                 Column(horizontalAlignment = Alignment.End) {
-                    Text(
-                        text = "${result.correctCount}/${result.totalQuestions}",
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = accentColor,
-                    )
-                    Spacer(modifier = Modifier.height(4.dp))
-                    Text(
-                        text = "🔥 ${result.longestStreak}",
-                        fontSize = 13.sp,
-                        color = MaterialTheme.colorScheme.secondary,
-                    )
+                    Text(text = "${result.correctCount}/${result.totalQuestions}", fontSize = 18.sp, fontWeight = FontWeight.Bold, color = accentColor)
+                    Spacer(modifier = Modifier.height(3.dp))
+                    Text(text = "🔥 ${result.longestStreak}", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }
@@ -271,11 +187,11 @@ fun LeaderboardScreenPreview() {
             uiState = LeaderboardUiState(
                 results = listOf(
                     QuizResult(id = 1, correctCount = 8, totalQuestions = 10, longestStreak = 5, skippedCount = 1, timestamp = 1718000000000L, isWin = true),
-                    QuizResult(id = 2, correctCount = 4, totalQuestions = 10, longestStreak = 2, skippedCount = 2, timestamp = 1717913600000L, isWin = false)
+                    QuizResult(id = 2, correctCount = 4, totalQuestions = 10, longestStreak = 2, skippedCount = 2, timestamp = 1717913600000L, isWin = false),
                 ),
-                isLoading = false
+                isLoading = false,
             ),
-            onEvent = {}
+            onEvent = {},
         )
     }
 }

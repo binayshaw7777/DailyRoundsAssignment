@@ -46,4 +46,4 @@ Active checklist for the DailyRounds MCQ Quiz App implementation.
 - [x] `_state.update{}` used everywhere (no stale read/write)
 - [x] BUILD SUCCESSFUL (compileSdk=37, all deps resolved)
 - [x] Write README.md
-- [ ] Test on device/emulator
+- [x] Test on device/emulator (exportPreviews runs successfully, generating 15 screenshots)

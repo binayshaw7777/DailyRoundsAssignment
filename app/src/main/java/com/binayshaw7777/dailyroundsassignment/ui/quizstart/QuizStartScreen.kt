@@ -1,9 +1,15 @@
 package com.binayshaw7777.dailyroundsassignment.ui.quizstart
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -11,14 +17,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import sv.lib.squircleshape.SquircleShape
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.Text
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import com.binayshaw7777.dailyroundsassignment.ui.components.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -32,9 +36,25 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.binayshaw7777.dailyroundsassignment.ui.theme.DailyRoundsAssignmentTheme
-import com.binayshaw7777.dailyroundsassignment.ui.theme.OptionCorrect
-import com.binayshaw7777.dailyroundsassignment.ui.theme.TextPrimary
+import kotlinx.coroutines.launch
+import sv.lib.squircleshape.SquircleShape
 
+/**
+ * Pre-quiz landing screen that displays lifetime stats and a "Start Quiz" / "Play Again" button.
+ *
+ * Shows a summary card with **Played**, **Wins**, and **Best Streak** when the user has
+ * completed at least one quiz. For first-time users, a friendly "No games yet" message
+ * is shown instead.
+ *
+ * Content fades in and the button springs into view via [Animatable] animations on
+ * first composition.
+ *
+ * @param totalGames Lifetime number of completed quizzes.
+ * @param totalWins Lifetime number of winning quizzes.
+ * @param bestStreak The user's all-time highest streak.
+ * @param onStartQuiz Callback invoked when the user taps the primary action button.
+ * @param modifier [Modifier] applied to the root Column.
+ */
 @Composable
 fun QuizStartScreen(
     totalGames: Int,
@@ -47,71 +67,78 @@ fun QuizStartScreen(
     val buttonScale = remember { Animatable(0.8f) }
 
     LaunchedEffect(Unit) {
-        contentAlpha.animateTo(1f, animationSpec = tween(500))
-        buttonScale.animateTo(1f, animationSpec = tween(300))
+        launch { contentAlpha.animateTo(1f, animationSpec = tween(400)) }
+        launch {
+            buttonScale.animateTo(
+                1f,
+                animationSpec = spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessMediumLow,
+                ),
+            )
+        }
     }
 
     Column(
         modifier = modifier
             .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = 24.dp),
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 24.dp, vertical = 24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .alpha(contentAlpha.value),
+            modifier = Modifier.fillMaxWidth().alpha(contentAlpha.value),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            Text(text = "🧠", fontSize = 72.sp)
-
-            Spacer(modifier = Modifier.height(20.dp))
-
+            Text(text = "🧠", fontSize = 56.sp, enableAutoSize = false)
+            Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = "Daily Quiz",
-                fontSize = 32.sp,
+                fontSize = 28.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.onBackground,
             )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
+            Spacer(modifier = Modifier.height(6.dp))
             Text(
-                text = "Test your knowledge, build your streak,\nand dominate the leaderboard.",
-                fontSize = 15.sp,
-                color = MaterialTheme.colorScheme.secondary,
+                text = "Test your knowledge and build your streak.",
+                fontSize = 14.sp,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center,
-                lineHeight = 22.sp,
+                lineHeight = 21.sp,
             )
 
-            Spacer(modifier = Modifier.height(40.dp))
+            Spacer(modifier = Modifier.height(32.dp))
 
             if (totalGames > 0) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
-                        .padding(vertical = 20.dp, horizontal = 16.dp),
-                    horizontalArrangement = Arrangement.SpaceEvenly,
+                Surface(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = SquircleShape(14.dp),
+                    color = MaterialTheme.colorScheme.surface,
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
                 ) {
-                    StatItem(label = "Played", value = totalGames.toString())
-                    VerticalDivider()
-                    StatItem(label = "Wins", value = totalWins.toString())
-                    VerticalDivider()
-                    StatItem(label = "Best Streak", value = "$bestStreak 🔥")
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 20.dp, horizontal = 16.dp),
+                        horizontalArrangement = Arrangement.SpaceEvenly,
+                    ) {
+                        StatItem(label = "Played", value = totalGames.toString())
+                        VerticalDivider()
+                        StatItem(label = "Wins", value = totalWins.toString())
+                        VerticalDivider()
+                        StatItem(label = "Best Streak", value = "$bestStreak 🔥")
+                    }
                 }
-
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(32.dp))
             } else {
                 Text(
-                    text = "No games played yet.\nStart your first quiz now!",
-                    fontSize = 14.sp,
-                    color = MaterialTheme.colorScheme.secondary,
+                    text = "No games yet. Start your first quiz!",
+                    fontSize = 13.sp,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     textAlign = TextAlign.Center,
                 )
-                Spacer(modifier = Modifier.height(40.dp))
+                Spacer(modifier = Modifier.height(32.dp))
             }
         }
 
@@ -119,16 +146,18 @@ fun QuizStartScreen(
             onClick = onStartQuiz,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(60.dp)
+                .height(52.dp)
                 .scale(buttonScale.value),
-            shape = SquircleShape(18.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = OptionCorrect),
+            shape = SquircleShape(12.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+            ),
         ) {
             Text(
                 text = if (totalGames > 0) "Play Again" else "Start Quiz",
-                fontSize = 18.sp,
-                fontWeight = FontWeight.Bold,
-                color = TextPrimary,
+                fontSize = 15.sp,
+                fontWeight = FontWeight.SemiBold,
             )
         }
     }
@@ -143,11 +172,11 @@ private fun StatItem(label: String, value: String) {
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.onSurface,
         )
-        Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(2.dp))
         Text(
             text = label,
             fontSize = 12.sp,
-            color = MaterialTheme.colorScheme.secondary,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
         )
     }
 }
@@ -157,8 +186,8 @@ private fun VerticalDivider() {
     Box(
         modifier = Modifier
             .width(1.dp)
-            .height(40.dp)
-            .background(MaterialTheme.colorScheme.surfaceVariant),
+            .height(36.dp)
+            .background(MaterialTheme.colorScheme.outline),
     )
 }
 
@@ -166,24 +195,14 @@ private fun VerticalDivider() {
 @Composable
 private fun QuizStartScreenPreview() {
     DailyRoundsAssignmentTheme {
-        QuizStartScreen(
-            totalGames = 12,
-            totalWins = 8,
-            bestStreak = 5,
-            onStartQuiz = {},
-        )
+        QuizStartScreen(totalGames = 12, totalWins = 8, bestStreak = 5, onStartQuiz = {})
     }
 }
 
 @Preview(showBackground = true)
 @Composable
-private fun QuizStartScreenFirstTimePreview() {
+private fun QuizStartScreenFirstPreview() {
     DailyRoundsAssignmentTheme {
-        QuizStartScreen(
-            totalGames = 0,
-            totalWins = 0,
-            bestStreak = 0,
-            onStartQuiz = {},
-        )
+        QuizStartScreen(totalGames = 0, totalWins = 0, bestStreak = 0, onStartQuiz = {})
     }
 }
